@@ -124,8 +124,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 		function(body,response){
 			console.log(body);
 		},
-		function(schedulingID){
-			var evt = voiceClient.schedule[schedulingID];
+		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 		
@@ -162,8 +161,7 @@ NOTE: If the `callLabel=outgoingNumber` is in both the event title and descripti
 		function(body,response){
 			console.log(body);
 		},
-		function(schedulingID){
-			var evt = voiceClient.schedule[schedulingID];
+		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 
