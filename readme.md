@@ -1,5 +1,5 @@
 ## Installation
-First install node-google-voice in the usual manner for node: 
+First install node-google-voice in the usual manner for node:
 	npm install googlevoice
 
 Google Voice client instances are made by calling voiceClient = new require('google-voice').Client(options), where options is an Object with the following properties:
@@ -210,7 +210,7 @@ This returns the requested parameter of the text message.
 		console.log(msgs.length + ' SMSs found.');
 	});
 
-##### retrieve the 10 most recent items from the inbox
+#### retrieve the 10 most recent items from the inbox
 	voiceClient.get('inbox',10,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		for(var i=0; i<msgs.length; i++){
@@ -218,7 +218,7 @@ This returns the requested parameter of the text message.
 		}
 	});
 
-##### display the most recent SMS thread:
+#### display the most recent SMS thread:
 	voiceClient.get('sms',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('latest SMS thread:');
@@ -228,7 +228,7 @@ This returns the requested parameter of the text message.
 		}
 	});
 
-##### find all messages related to 'mom' (texts/calls from 'mom' or that mention 'mom')
+#### find all messages related to 'mom' (texts/calls from 'mom' or that mention 'mom')
 	voiceClient.get({query: 'mom'},-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' messages found.');
