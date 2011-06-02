@@ -135,7 +135,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
-## Schedule calls from your Google Calendars
+### Schedule calls from your Google Calendars
 This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
 The format in the event title/details should be: `callLabel=outgoingNumber`.
 For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212. Note the absence of spaces in that string. 
