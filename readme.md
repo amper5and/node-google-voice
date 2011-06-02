@@ -115,7 +115,7 @@ Note that the `callbacks` are optional.
 
 ### The schedule
 Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event will be removed from the schedule object. 
-The name of each event object in the `schedule` object is the ISO String representation of the Date of the event (using ` Date.toISOString() `). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM,  `voiceClient.schedule` will contain an object with the name `2011-12-25T13:00:00.000Z`: `voiceClient.schedule['2011-12-25T13:00:00.000Z']` 
+The name of each event object in the `schedule` object is the ISO String representation of the Date of the event (using ` Date.toISOString() `). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM,  `voiceClient.schedule` will contain the object `voiceClient.schedule['2011-12-25T13:00:00.000Z']` .
 
 Each scheduled event ( `voiceClient.schedule[ISOdateString]` ) will contain at least the following properties:
 
@@ -137,7 +137,7 @@ Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,sch
 	
 NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently. (I plan to change this soon so that the `scheduleCallback` will be notified of a failed scheduling request.)
 
-NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
+NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be silently unscheduled. (TODO: provide a notification to `scheduleCallback` about the schedule change.)
 
 #### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
 ```javascript
@@ -183,7 +183,7 @@ The format in the event title/details should be: `callLabel=outgoingNumber`. Not
 
 For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212.
 
-NOTE: If the `callLabel=outgoingNumber` is in both the event title and description, the one in the title will be used.
+NOTE: If the `callLabel` is found in both the event title and description, the one in the title will be used.
 
 Use case: Using this inside `setInterval()` is an easy way to periodically add new events to the schedule as they are added in Google Calendar.
 
@@ -286,7 +286,7 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 	
 	* a query object: `{query: searchString}`
 	
-	This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+	This last form retrieves messages that match the given `searchString` (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
@@ -435,8 +435,12 @@ All data manipulation requests are of the following form: `voiceClient.set(param
 * Detect removed scheduling events in Google Calendar
 * Get and set Google Voice settings
 * Retrieve contacts
-* Download/stream voicemail MP3ss
+* Download/stream voicemail MP3s
+
+## License
+What? This project is [UNLICENSED](http://unlicense.org/) .
 
 ## Conclusion
 Google does not have an official Google Voice API. Therefore, the nature of the requests and returned data can change without notice. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout, and I'll do my best to address them. I have not trained as a developer (I code only as a hobby), so I'm also open to any constructive criticism on best coding practices and the like. 
+
 Enjoy!
