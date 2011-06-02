@@ -3,6 +3,8 @@ First install node-google-voice in the usual manner for node:
 	
 	npm install google-voice
 
+## Instantiate a Google Voice client
+
 Google Voice client instances are made by calling voiceClient = new require('google-voice').Client(options), where options is an Object with the following properties:
 
 * **email** (String) - your Google Voice login email
@@ -14,8 +16,7 @@ Google Voice client instances are made by calling voiceClient = new require('goo
     
 	* You only have to do this once, because the rnr_se doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that the rnr_se hasn't changed.)
 
-## Instantiate a Google Voice client
-
+#### Create a GV client instance
 	var GV = require('google-voice');
 	var voiceClient = new GV.Client({
 		email: 'username@gmail.com',
@@ -36,11 +37,14 @@ In the examples below:
     * 7 - Gizmo		
 * **body** is either:
     * an Object formed from the JSON response from Google Voice (typically something like 
-	{ ok: true, data: { code: 0 } } 
+
+		{ ok: true, data: { code: 0 } } 
+		
 	or 
-	{ ok: false, error: 'Cannot complete call.' } 
+	
+		{ ok: false, error: 'Cannot complete call.' } 
 	or 
-	{ ok: false, data: { code: 20 } })
+		{ ok: false, data: { code: 20 } })
     * a String containing the HTML response from Google Voice (for cases when the body of the response doesn't contain JSON)
 
 	The body object/string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
@@ -75,7 +79,9 @@ voiceClient.schedule['2011-12-25T13:00:00.000Z'] will contain at least the follo
 The other properties of voiceClient.schedule[ISOdateString] will be event-specific items such as outgoingNumber, forwardingNumber, text, etc...
 
 Events are scheduled with 
+
 	voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback) 
+
 where
 
 * **type** (String) is either 'sms' or 'call'
@@ -83,7 +89,7 @@ where
 * **...** represents the normal variables associated with the event (such as outgoingNumber, textMessage, etc...see above)
 * **eventCallback** (Function) is of the form function(body,response), where body and response are the same Objects as described earlier in the INTRO. 
   This callback is called AT THE TIME OF THE EVENT.
-* **scheduleCallback **(Function) is of the form function(schedulingID, scheduledEvent), where 
+* **scheduleCallback** (Function) is of the form function(schedulingID, scheduledEvent), where 
     * **schedulingID** (String) is the ISO string representation of the date of the event. 
     * **sheduledEvent** (Object) is the event object from voiceClient.schedule corresponding to the scheduled event.
   This callback is called after the event has been succesfully SCHEDULED.
@@ -179,7 +185,8 @@ All data requests are of the following form:
 
 where:
 
-* **request** (String or Object) is one of the following requests:
+* **request** (String or Object) is one of the following Strings:
+
 	'history'
 	'inbox'
 	'spam'
@@ -191,8 +198,10 @@ where:
 	'missed'
 	'received'
 	'recorded'
+	
 OR
 	{query: searchString}
+
 This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 * **limit** (Integer) limits the number of returned messages to a certain number, ordered by time. So limit=1 will return the most recent message of the given request and limit=10 will return the 10 most recent messages. If limit == -1, ALL messages will be returned (can be slow for very large inboxes).
 * **callback** (Function) is of the form function(error,messages) where messages is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
@@ -273,7 +282,8 @@ All data manipulation requests are of the following form:
 
 where:
 
-* param (String) on of the following parameters:
+* **param** (String) on of the following Strings:
+
 	'markRead'
 	'markUnread'
 	'archive'
@@ -282,8 +292,9 @@ where:
 	'unstar'
 	'deleteForever' : deletes the message F O R E V E R
 	'toggleTrash' : calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
-* messageID (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
-* callback (Function) is of the form function(body, response) where body and response are described in the INTRODUCTION
+
+* **messageID** (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
+* **callback** (Function) is of the form function(body, response) where body and response are described in the INTRODUCTION
 
 #### star a message
 	voiceClient.set('star',messageID,function(body,reponse){
@@ -315,5 +326,4 @@ Every time a get or set request is made, the voice client object's unreadCounts 
 
 
 
-I am not a developer and have never trained as one. If you have any issues or find any bugs, please make me aware of them. I am also open to constructive criticism on coding practices and any violations of best practices you may find in my code. 
 Enjoy!
