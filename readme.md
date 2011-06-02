@@ -5,18 +5,22 @@ First install node-google-voice in the usual manner for node:
 
 ## Instantiate a Google Voice client
 
-Google Voice client instances are made by calling voiceClient = new require('google-voice').Client(options), where options is an Object with the following properties:
+Google Voice client instances are made by calling 
+
+	voiceClient = new require('google-voice').Client(options), 
+	
+where **options** is an Object with the following properties:
 
 * **email** (String) - your Google Voice login email
 * **password** (String)
 * **rnr_se** (String)
     * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice and running the following javascript bookmarklet in the browser window:
 	
-		javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se)
+		javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se);
     
 	* You only have to do this once, because the rnr_se doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that the rnr_se hasn't changed.)
 
-#### Create a GV client instance
+#### Example:  Create a GV client instance
 	var GV = require('google-voice');
 	var voiceClient = new GV.Client({
 		email: 'username@gmail.com',
@@ -51,17 +55,17 @@ In the examples below:
 * **response** (http.ClientResponse) is an instance of Node's http.ClientResponse. This is the response from the particular request. It is provided for cases where you would like to get more information about what went wrong (or right!) and act on it. 
 
 ## Calling and Texting
-#### Place a call:
+#### Example:  Place a call:
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType,function(body,response){
 		console.log(body);
 	});
 
-#### Send an SMS to one number:
+#### Example:  Send an SMS to one number:
 	voiceClient.sendSMS(outgoingNumber,textMessage,function(body,response){
 		console.log(body);
 	});
 
-#### Send an SMS to multiple numbers:
+#### Example:  Send an SMS to multiple numbers:
 	voiceClient.sendSMS([outgoingNumber1,outgoingNumber2],textMessage,function(body,response){
 		console.log(body);
 	});
@@ -98,7 +102,7 @@ NOTE: If the date & time of an event is before the current system time, the even
 
 NOTE: Only one event can be scheduled for a particular time, regarless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
-#### Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
+#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
 	voiceClient.scheduler('call',[2011,12,25,8,00],outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -108,7 +112,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 
-#### Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date
+#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date
 	voiceClient.scheduler('call',new Date(2011,11,25,8,00),outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -118,7 +122,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 	
-#### Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
+#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
 	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,textMessage,
 		function(body,response){
 			console.log(body);
@@ -128,7 +132,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 
-#### Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
+#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
 	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,textMessage,
 		function(body,response){
 			console.log(body);
@@ -147,7 +151,7 @@ To remove an event from the schedule, call voiceClient.unscheduler(date) where d
 
 voiceClient.unscheduler(date) returns true if an event was unscheduled, false if not (it may be false simply because no event was scheduled at that time).
 
-#### Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
+#### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
 
 	voiceClient.unscheduler([2011,12,25,8,00]);
 	
@@ -237,19 +241,19 @@ This returns the requested parameter of the text message where
 * **msgDomElement** is the DOM element from the thread Array
 
 
-#### retrieve and display the last missed call:
+#### Example:  retrieve and display the last missed call:
 	voiceClient.get('missed',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
 
-##### retrieve all sms messages
+#### Example: # retrieve all sms messages
 	voiceClient.get('sms',-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' SMSs found.');
 	});
 
-#### retrieve the 10 most recent items from the inbox
+#### Example:  retrieve the 10 most recent items from the inbox
 	voiceClient.get('inbox',10,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		for(var i=0; i<msgs.length; i++){
@@ -257,7 +261,7 @@ This returns the requested parameter of the text message where
 		}
 	});
 
-#### display the most recent SMS thread:
+#### Example:  display the most recent SMS thread:
 	voiceClient.get('sms',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('latest SMS thread:');
@@ -267,7 +271,7 @@ This returns the requested parameter of the text message where
 		}
 	});
 
-#### find all messages related to 'mom' (texts/calls from 'mom' or that mention 'mom')
+#### Example:  find all messages related to 'mom' (texts/calls from 'mom' or that mention 'mom')
 	voiceClient.get({query: 'mom'},-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' messages found.');
@@ -296,12 +300,12 @@ where:
 * **messageID** (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
 * **callback** (Function) is of the form function(body, response) where body and response are described in the INTRODUCTION
 
-#### star a message
+#### Example:  star a message
 	voiceClient.set('star',messageID,function(body,reponse){
 		console.log(body);
 	})
 
-#### archive a bunch of messages
+#### Example:  archive a bunch of messages
 	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,reponse){
 		console.log(body);
 	})
