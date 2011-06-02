@@ -168,7 +168,7 @@ For example, if `callLabel='GVCall'`, then the event title or description in Goo
 
 NOTE: If the `callLabel=outgoingNumber` is in both the event title and description, the one in the title will be used.
 
-Use case: Using this inside `setInterval()` is an easy way to add new events to the schedule as they are added in Google Calendar.
+Use case: Using this inside `setInterval()` is an easy way to periodically add new events to the schedule as they are added in Google Calendar.
 
 #### Example: Schedule calls from Google Calendar:
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
@@ -375,7 +375,6 @@ where:
 * Get and set Google Voice settings
 * Retrieve contacts
 * Download/stream voicemail MP3ss
-
 
 ## Conclusion
 Google does not have an official Google Voice API. Therefore, the nature of the requests and returned data can change without notice. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout, and I'll do my best to address them. I have not trained as a developer (I code only as a hobby), so I'm also open to any constructive criticism on best coding practices and the like. 
