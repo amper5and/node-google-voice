@@ -98,7 +98,7 @@ where
     * `sheduledEvent` (Object) is the event object from `voiceClient.schedule` corresponding to the scheduled event.
    This callback is called after the event has been succesfully SCHEDULED.
 	
-NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently.
+NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently. (I plan to change this soon so that the `schedulingCallback` will be notified of a failed scheduling request.)
 
 NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
@@ -126,7 +126,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
 	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!');
 
-**Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.**
+Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
  	
 ## Remove scheduled events
 To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
@@ -155,6 +155,7 @@ To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. T
 	voiceClient.unscheduleAll(function(){
 		console.log('The schedule has been cleared.');
 	})
+
 
 ## Schedule calls from your Google Calendars
 This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
@@ -189,7 +190,7 @@ or
 
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
 	
-**Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.**
+Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
 ## Retrieving GV Data
 All data requests are of the following form: 
