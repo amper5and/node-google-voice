@@ -10,7 +10,7 @@ Google Voice client instances are made by calling voiceClient = new require('goo
 * **rnr_se** (String)
     * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice and running the following javascript bookmarklet in the browser window:
 	
-	javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se)
+		javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se)
     
 	* You only have to do this once, because the rnr_se doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that the rnr_se hasn't changed.)
 
