@@ -40,15 +40,7 @@ In the examples below:
     * 3 - Work
     * 7 - Gizmo		
 * `body` is either:
-    * an Object formed from the JSON response from Google Voice (typically something like 
-
-		{ ok: true, data: { code: 0 } } 
-		
-	or 
-	
-		{ ok: false, error: 'Cannot complete call.' } 
-	or 
-		{ ok: false, data: { code: 20 } })
+    * an Object formed from the JSON response from Google Voice (typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`
     * a String containing the HTML response from Google Voice (for cases when the body of the response doesn't contain JSON)
 
 	The body object/string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
@@ -147,7 +139,7 @@ To remove an event from the schedule, call `voiceClient.unscheduler(date)` where
 * Date 
 * String (in the ISO format)
 
-voiceClient.unscheduler(date) returns true if an event was unscheduled, false if not (it may be false simply because no event was scheduled at that time).
+`voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
 
 #### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
 
