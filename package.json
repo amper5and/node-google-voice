@@ -2,7 +2,7 @@
   "author": "AXS",
   "name": "google-voice",
   "description": "A Google Voice api for node.js that allows: placing calls/sending SMS/scheduling calls using Google Calendar/accessing & manipulating GV data.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/amper5and/node-google-voice",
   "repository": {
     "type": "git",

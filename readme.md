@@ -149,7 +149,7 @@ or
 
 	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
 
-To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional.
+To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
 #### Example:  Unschedule all scheduled events:
 	voiceClient.unscheduleAll(function(){
 		console.log('The schedule is empty');
