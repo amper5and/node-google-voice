@@ -1,5 +1,5 @@
 ## What is it?
-It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so it's the only Google Voice API. It allows you to 
+It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only Google Voice API. It allows you to 
 
 * place calls
 * send SMS's
@@ -11,6 +11,8 @@ First install node-google-voice in the usual manner for node:
 	
 	npm install google-voice
 
+See [npm](https://github.com/isaacs/npm) for information on installing npm, the Node Package Manager.
+
 ### Dependencies
 node-google-voice depends on:
 
@@ -18,13 +20,13 @@ node-google-voice depends on:
 * [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js/)
 * [jsdom](https://github.com/tmpvar/jsdom)
 
-npm should take care of dependencies, but in case it fails to do so, try installing those modules independently.
+[npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing those modules (and *their* dependencies) independently.
 
 ### Node.js version
 I've only tested google-voice in Node 0.4.7. Theoretically, it should work fine in older versions, as long as:
 
 * those versions are supported by the dependencies and 
-* the particular Node version's `https` is not much different from v0.4.7's. This is the only major core Node module used by google-voice.
+* the particular Node version's `https` is not much different from v0.4.7's. This is the only major core Node module used by node-google-voice.
 
 ## Instantiate a Google Voice client
 
@@ -151,11 +153,23 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
 ### Schedule calls from your Google Calendars
-This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
-The format in the event title/details should be: `callLabel=outgoingNumber`.
-For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212. Note the absence of spaces in that string. 
+Schedule calls from your Google Calendars with: `voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,eventCallback,scheduleCallback)` where
+
+* `callLabel` (String) is the string used in Calendar event title/details in the format `callLabel=outgoingNumber` where `outgoingNumber` is the number you will be connected to.
+* `forwardingNumber` (String) is the number on YOUR end that will ring
+* `phoneType` (Integer) is the phone type of `forwardingNumber` (see above)
+* `eventCallback` (Function(body,response)) is the callback called at the time of the event (see above)
+* `scheduleCallback` (Function(scheduleID,evt)) is the callback called when the event is scheduled (see above)
+
+This searches your Google Calendars for events with `callLabel` (String) in the event title or event description, and schedules calls for the `outgoingNumber` at that event time.
+The format in the event title/details should be: `callLabel=outgoingNumber`. Note the absence of spaces in that string. 
+
+For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212.
 
 NOTE: If the `callLabel=outgoingNumber` is in both the event title and description, the one in the title will be used.
+
+Use case: Using this inside `setInterval()` is an easy way to add new events to the schedule as they are added in Google Calendar.
+
 #### Example: Schedule calls from Google Calendar:
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
@@ -182,7 +196,7 @@ or
 or
 
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
-	
+ 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
 ### Remove individual scheduled events:
@@ -356,9 +370,11 @@ where:
 
 
 ## TODO
-* Change Google Voice settings
+* Schedule SMS's with Google Calendar
+* Detect removed scheduling events in Google Calendar
+* Get and set Google Voice settings
 * Retrieve contacts
-* Download/stream voicemail MP3s. 
+* Download/stream voicemail MP3ss
 
 
 ## Conclusion
