@@ -36,7 +36,7 @@ where `options` is an Object with the following properties:
 		rnr_se: '_rnr_se from Google Voice web page'
 	});
 	
-## Intro
+## Introduction
 In the examples below:
 
 * `textMessage` (String) is the SMS to send
@@ -82,8 +82,10 @@ Note that the `callbacks` are optional.
 
 
 ## Schedule calls and SMS's
-Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event wil be removed from the schedule object. 
-The key of each event in the schedule object is the ISO String representation of the Date of the event. So, for the example events below, set to take place on 12/25/2011 at 8:00 AM, the `schedule` Object will contain an object with the name `2011-12-25T13:00:00.000Z`:
+
+### The schedule
+Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event will be removed from the schedule object. 
+The key of each event in the schedule object is the ISO String representation of the Date of the event (using `Date.toISOString()`). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM, the `schedule` Object will contain an object with the name `2011-12-25T13:00:00.000Z`:
 
 `voiceClient.schedule['2011-12-25T13:00:00.000Z']` will contain at least the following properties:
 
@@ -92,6 +94,7 @@ The key of each event in the schedule object is the ISO String representation of
 
 The other properties of `voiceClient.schedule[ISOdateString]` will be event-specific items such as `outgoingNumber`, `forwardingNumber`, `text`, etc...
 
+### Scheduling events
 Events are scheduled with 
 `voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` 
 where
@@ -99,14 +102,12 @@ where
 * `type` (String) is either 'sms' or 'call'
 * `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
 * `...` represents the normal variables associated with the event (such as outgoingNumber, textMessage, etc...see above)
-* `eventCallback` (Function) is of the form `function(body,response), where` body and response are the same Objects as described earlier in the INTRO. 
-  This callback is called AT THE TIME OF THE EVENT.
-* `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`, where 
+* `eventCallback` (Function) is of the form `function(body,response), where` body and response are the same Objects as described earlier in the INTRO. This callback is called AT THE TIME OF THE EVENT.
+* `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`. This callback is called after the event has been successfully SCHEDULED. The parameters are: 
     * `schedulingID` (String) is the ISO string representation of the date of the event. 
     * `sheduledEvent` (Object) is the event object from `voiceClient.schedule` corresponding to the scheduled event.
-   This callback is called after the event has been succesfully SCHEDULED.
 	
-NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently. (I plan to change this soon so that the `schedulingCallback` will be notified of a failed scheduling request.)
+NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently. (I plan to change this soon so that the `scheduleCallback` will be notified of a failed scheduling request.)
 
 NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
@@ -136,7 +137,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
  	
-## Remove scheduled events
+### Remove scheduled events
 To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
