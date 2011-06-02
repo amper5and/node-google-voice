@@ -225,10 +225,9 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 	
 		voiceClient.parseSMS(param,msgDomElement)
 	
- This returns the requested parameter of the text message where
-
-	* `param` (String) is one of 'time', 'from', or 'text'
-	* `msgDomElement` is the DOM element from the thread Array
+	This returns the requested parameter of the text message where
+    * `param` (String) is one of 'time', 'from', or 'text'
+    * `msgDomElement` is the DOM element from the thread Array
 
 
 #### Example:  retrieve and display the last missed call:
