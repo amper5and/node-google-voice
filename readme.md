@@ -268,8 +268,8 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 
 * `request` (String or Object) is:
 	* one of the following Strings:
+	
 	```javascript
-
 		'history'
 		'inbox'
 		'spam'
@@ -288,6 +288,7 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
+	
 	```javascript	
 		{ id: 'someStringIdentifier',
 		  phoneNumber: '+18005551212',
@@ -398,7 +399,7 @@ All data manipulation requests are of the following form: `voiceClient.set(param
 * `param` (String) is one of the following Strings:
 
 	```javascript
-			'markRead'
+		'markRead'
 		'markUnread'
 		'archive'
 		'unarchive'
@@ -406,7 +407,7 @@ All data manipulation requests are of the following form: `voiceClient.set(param
 		'unstar'
 		'deleteForever'
 		'toggleTrash' //calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
-		```
+	```
 
 * `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
 * `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
