@@ -312,7 +312,12 @@ Every time a get or set request is made, the voice client's `unreadCounts` prope
 		}
 
 
+## TODO
+* Change Google Voice settings
+* Retrieve contacts
+* Download/stream voicemail MP3s. 
+
 
 ## Conclusion
-Google does not have an official Google Voice API. Therefore, the nature of the returned data can change. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout and I'll do my best to address them. I have not trained as a developer - I do this is a hobby - so I'm open to any constructive criticism on best coding practices and the like. 
+Google does not have an official Google Voice API. Therefore, the nature of the requests and returned data can change. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout and I'll do my best to address them. I have not trained as a developer (I code only as a hobby), so I'm also open to any constructive criticism on best coding practices and the like. 
 Enjoy!
