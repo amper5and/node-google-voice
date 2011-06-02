@@ -14,7 +14,7 @@ where `options` is an Object with the following properties:
 * `email` (String) - your Google Voice login email
 * `password` (String)
 * `rnr_se` (String)
-    * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice and running the following javascript bookmarklet in the browser window:
+    * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice web front-end and running the following javascript bookmarklet in the browser window:
 	
 		`javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se);`
     
@@ -81,24 +81,23 @@ where
 * `type` (String) is either 'sms' or 'call'
 * `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
 * `...` represents the normal variables associated with the event (such as outgoingNumber, textMessage, etc...see above)
-* `eventCallback` (Function) is of the form function(body,response), where body and response are the same Objects as described earlier in the INTRO. 
+* `eventCallback` (Function) is of the form `function(body,response), where` body and response are the same Objects as described earlier in the INTRO. 
   This callback is called AT THE TIME OF THE EVENT.
-* `scheduleCallback` (Function) is of the form function(schedulingID, scheduledEvent), where 
+* `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`, where 
     * `schedulingID` (String) is the ISO string representation of the date of the event. 
-    * `sheduledEvent` (Object) is the event object from voiceClient.schedule corresponding to the scheduled event.
+    * `sheduledEvent` (Object) is the event object from `voiceClient.schedule` corresponding to the scheduled event.
    This callback is called after the event has been succesfully SCHEDULED.
 	
-NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduing request will fail silently.
+NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently.
 
-NOTE: Only one event can be scheduled for a particular time, regarless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
+NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
 #### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
 	voiceClient.scheduler('call',[2011,12,25,8,00],outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
 		},
-		function(schedulingID){
-			var evt = voiceClient.schedule[schedulingID];
+		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 
@@ -107,8 +106,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 		function(body,response){
 			console.log(body);
 		},
-		function(schedulingID){
-			var evt = voiceClient.schedule[schedulingID];
+		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 	
@@ -117,8 +115,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 		function(body,response){
 			console.log(body);
 		},
-		function(schedulingID){
-			var evt = voiceClient.schedule[schedulingID];
+		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 
@@ -195,8 +192,7 @@ where:
 OR
 
 		{query: searchString}
-
-  This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
 		
@@ -216,7 +212,6 @@ OR
 		  type: 0,
 		  children: '' 
 		}
-
 NOTE: SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
 
 * `lastText` (String) is the most recent text in the thread
