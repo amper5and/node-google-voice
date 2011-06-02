@@ -79,26 +79,35 @@ In the examples below:
 		console.log(body);
 	});
 ```	
+
 or
+
 ```javascript	
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType);
 ```
+
 #### Example:  Send an SMS to one number:
+
 ```javascript
 	voiceClient.sendSMS(outgoingNumber,textMessage,function(body,response){
 		console.log(body);
 	});
 ```	
+
 or
+
 ```javascript
 	voiceClient.sendSMS(outgoingNumber,textMessage);
 ```
+
 #### Example:  Send an SMS to multiple numbers:
+
 ```javascript
 	voiceClient.sendSMS([outgoingNumber1,outgoingNumber2],textMessage,function(body,response){
 		console.log(body);
 	});
 ```
+
 Note that the `callbacks` are optional.
 
 
@@ -179,6 +188,7 @@ NOTE: If the `callLabel=outgoingNumber` is in both the event title and descripti
 Use case: Using this inside `setInterval()` is an easy way to periodically add new events to the schedule as they are added in Google Calendar.
 
 #### Example: Schedule calls from Google Calendar:
+
 ```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
@@ -188,24 +198,31 @@ Use case: Using this inside `setInterval()` is an easy way to periodically add n
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 ```
+
 or
+
 ```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
 		});
-```		
+```	
+	
 or
+
 ```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,null,
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
-```		
+```	
+	
 or
+
 ```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
 ```
+
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
 ### Unschedule individual scheduled events
@@ -218,20 +235,27 @@ To remove one event from the schedule, call `voiceClient.unscheduler(date)` wher
 `voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
 
 #### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
+
 ```javascript
 	voiceClient.unscheduler([2011,12,25,8,00]);
 ```	
+
 or
+
 ```javascript
 	voiceClient.unscheduler(new Date(2011,11,25,8,00));
 ```
+
 or
+
 ```javascript
 	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
 ```
+
 ### Unschedule all scheduled events
 To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
 #### Example:  Unschedule all scheduled events:
+
 ```javascript
 	voiceClient.unscheduleAll(function(){
 		console.log('The schedule has been cleared.');
