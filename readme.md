@@ -51,16 +51,26 @@ In the examples below:
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType,function(body,response){
 		console.log(body);
 	});
+	
+or
+	
+	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType);
 
 #### Example:  Send an SMS to one number:
 	voiceClient.sendSMS(outgoingNumber,textMessage,function(body,response){
 		console.log(body);
 	});
+	
+or
+
+	voiceClient.sendSMS(outgoingNumber,textMessage);
 
 #### Example:  Send an SMS to multiple numbers:
 	voiceClient.sendSMS([outgoingNumber1,outgoingNumber2],textMessage,function(body,response){
 		console.log(body);
 	});
+
+Note that the `callbacks` are optional.
 
 
 ## Schedule calls and SMS's
@@ -105,9 +115,6 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 	voiceClient.scheduler('call',new Date(2011,11,25,8,00),outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
-		},
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 	
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
@@ -120,14 +127,10 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 		});
 
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
-	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!',
-		function(body,response){
-			console.log(body);
-		},
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
-		});
-		
+	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!');
+
+Note that all of the above requests are valid: you can include both callbacks, just the eventCallback, or no callbacks.
+ 	
 ## Remove scheduled events
 To remove an event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
@@ -165,7 +168,10 @@ NOTE: If the `callLabel=outgoingNumber` is in both the event title and descripti
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 
+or
 
+	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
+	
 
 ## Retrieving GV Data
 All data requests are of the following form: 
