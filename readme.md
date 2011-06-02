@@ -113,7 +113,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 		});
 	
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
-	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,textMessage,
+	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',
 		function(body,response){
 			console.log(body);
 		},
@@ -123,7 +123,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 		});
 
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
-	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,textMessage,
+	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!',
 		function(body,response){
 			console.log(body);
 		},
@@ -193,10 +193,10 @@ where:
 		'received'
 		'recorded'	
 OR
+
 		{query: searchString}
 
-This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
-
+  This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
 		
@@ -221,15 +221,14 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 
 * `lastText` (String) is the most recent text in the thread
 * `thread` (Array) is the collection of text messages in the SMS thread. Each item in this Array is a DOM element (made with jsdom!) that has three children, corresponding to the time, from, and text of the SMS. 
-			
-A convenience method is provided to extract this information from text message DOM elements:
+   A convenience method is provided to extract this information from text message DOM elements:
 	
-	voiceClient.parseSMS(param,msgDomElement)
+		voiceClient.parseSMS(param,msgDomElement)
 	
-This returns the requested parameter of the text message where
+ This returns the requested parameter of the text message where
 
-* `param` (String) is one of 'time', 'from', or 'text'
-* `msgDomElement` is the DOM element from the thread Array
+	* `param` (String) is one of 'time', 'from', or 'text'
+	* `msgDomElement` is the DOM element from the thread Array
 
 
 #### Example:  retrieve and display the last missed call:
