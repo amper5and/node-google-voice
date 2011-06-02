@@ -267,7 +267,7 @@ To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. T
 All data requests are of the following form: `voiceClient.get(request,limit,callback) ` where:
 
 * `request` (String or Object) is:
-	* one of the following Strings:
+	* one of the following self-explanatory Strings:
 	
 	```javascript
 		'history'
@@ -283,7 +283,9 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 		'recorded'
 	```	
 	or
+	
 	* a query object: `{query: searchString}`
+	
 	This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
