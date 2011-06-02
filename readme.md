@@ -15,18 +15,18 @@ npm should take care of dependencies, but in case it fails to do so, try install
 
 Google Voice client instances are made by calling 
 
-	voiceClient = new require('google-voice').Client(options), 
+	voiceClient = new require('google-voice').Client(options)
 	
 where `options` is an Object with the following properties:
 
 * `email` (String) - your Google Voice login email
-* `password` (String)
+* `password` (String) - your Google Voice password
 * `rnr_se` (String)
     * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice web front-end and running the following javascript bookmarklet in the browser window:
 	
-		`javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se);`
+		` javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se); `
     
-	* You only have to do this once, because the rnr_se doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that the rnr_se hasn't changed.)
+	* You only have to do this once, because the `_rnr_se` doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that your `_rnr_se` hasn't changed.)
 
 #### Example:  Create a GV client instance
 	var GV = require('google-voice');
@@ -52,7 +52,7 @@ In the examples below:
     * a String containing the HTML response from Google Voice (for cases when the body of the response doesn't contain JSON)
 
 	The body object/string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
-* `response` (http.ClientResponse) is an instance of Node's http.ClientResponse. This is the response from the particular request. It is provided for cases where you would like to get more information about what went wrong (or right!) and act on it. 
+* `response` (http.ClientResponse) is an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right!) and act on it. 
 
 ## Calling and Texting
 #### Example:  Place a call:
@@ -85,9 +85,9 @@ Note that the `callbacks` are optional.
 
 ### The schedule
 Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event will be removed from the schedule object. 
-The key of each event in the schedule object is the ISO String representation of the Date of the event (using `Date.toISOString()`). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM, the `schedule` Object will contain an object with the name `2011-12-25T13:00:00.000Z`:
+The name of each event object in the `schedule` object is the ISO String representation of the Date of the event (using ` Date.toISOString() `). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM,  `voiceClient.schedule` will contain an object with the name `2011-12-25T13:00:00.000Z`: `voiceClient.schedule['2011-12-25T13:00:00.000Z']` 
 
-`voiceClient.schedule['2011-12-25T13:00:00.000Z']` will contain at least the following properties:
+Each scheduled event ( `voiceClient.schedule[ISOdateString]` ) will contain at least the following properties:
 
 * `type` (String): will be either 'call' or 'sms' indicating the event type
 * `timer` (timeoutId): the timer object (http://nodejs.org/docs/v0.4.7/api/timers.html) created by setTimeout()
@@ -95,9 +95,7 @@ The key of each event in the schedule object is the ISO String representation of
 The other properties of `voiceClient.schedule[ISOdateString]` will be event-specific items such as `outgoingNumber`, `forwardingNumber`, `text`, etc...
 
 ### Scheduling events
-Events are scheduled with 
-`voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` 
-where
+Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` where
 
 * `type` (String) is either 'sms' or 'call'
 * `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
@@ -136,35 +134,6 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!');
 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
- 	
-### Remove scheduled events
-To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
-
-* Array (in the format discussed above)
-* Date 
-* String (in the ISO format)
-
-`voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
-
-#### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
-
-	voiceClient.unscheduler([2011,12,25,8,00]);
-	
-or
-
-	voiceClient.unscheduler(new Date(2011,11,25,8,00));
-
-or
-
-	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
-
-
-To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
-#### Example:  Unschedule all scheduled events:
-	voiceClient.unscheduleAll(function(){
-		console.log('The schedule has been cleared.');
-	})
-
 
 ## Schedule calls from your Google Calendars
 This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
@@ -200,6 +169,35 @@ or
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
 	
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
+
+### Remove individual scheduled events
+To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
+
+* Array (in the format discussed above)
+* Date 
+* String (in the ISO format)
+
+`voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
+
+#### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
+
+	voiceClient.unscheduler([2011,12,25,8,00]);
+	
+or
+
+	voiceClient.unscheduler(new Date(2011,11,25,8,00));
+
+or
+
+	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
+
+### Unschedule all scheduled events
+To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
+#### Example:  Unschedule all scheduled events:
+	voiceClient.unscheduleAll(function(){
+		console.log('The schedule has been cleared.');
+	})
+
 
 ## Retrieving GV Data
 All data requests are of the following form: 
