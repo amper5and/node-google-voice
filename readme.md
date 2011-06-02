@@ -1,5 +1,5 @@
 ## What is it?
-It's the Google Voice API in node.js. Except there is no official "Google Voice API", so it's the only Google Voice API. It allows you to 
+It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so it's the only Google Voice API. It allows you to 
 
 * place calls
 * send SMS's
@@ -10,6 +10,7 @@ It's the Google Voice API in node.js. Except there is no official "Google Voice 
 First install node-google-voice in the usual manner for node:
 	
 	npm install google-voice
+
 ### Dependencies
 node-google-voice depends on:
 
@@ -18,6 +19,12 @@ node-google-voice depends on:
 * [jsdom](https://github.com/tmpvar/jsdom)
 
 npm should take care of dependencies, but in case it fails to do so, try installing those modules independently.
+
+### Node.js version
+I've only tested google-voice in Node 0.4.7. Theoretically, it should work fine in older versions, as long as:
+
+* those versions are supported by the dependencies and 
+* the particular Node version's `https` is not much different from v0.4.7's. This is the only major core Node module used by google-voice.
 
 ## Instantiate a Google Voice client
 
@@ -117,7 +124,7 @@ NOTE: If the date & time of an event is before the current system time, the even
 
 NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
-#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
+#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
 	voiceClient.scheduler('call',[2011,12,25,8,00],outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -126,20 +133,20 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
 
-#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date
+#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date:
 	voiceClient.scheduler('call',new Date(2011,11,25,8,00),outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
 		});
 	
-#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
+#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
 	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',null,
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
 
-#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
-	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!');
+#### Example:  Schedule an sms to be sent on 12/25/2011 at 10:00 PM using a Date object to represent the date:
+	voiceClient.scheduler('sms',new Date(2011,11,25,22,00),outgoingNumber,'Hope you had a wonderful Christmas!');
 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
@@ -149,7 +156,7 @@ The format in the event title/details should be: `callLabel=outgoingNumber`.
 For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212. Note the absence of spaces in that string. 
 
 NOTE: If the `callLabel=outgoingNumber` is in both the event title and description, the one in the title will be used.
-#### Example: Schedule calls from Google Calendar
+#### Example: Schedule calls from Google Calendar:
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -178,7 +185,7 @@ or
 	
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
-### Remove individual scheduled events
+### Remove individual scheduled events:
 To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
@@ -322,12 +329,12 @@ where:
 * `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
 * `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
 
-#### Example:  star a message
+#### Example:  star a message:
 	voiceClient.set('star',messageID,function(body,reponse){
 		console.log(body);
 	})
 
-#### Example:  archive a bunch of messages
+#### Example:  archive a bunch of messages:
 	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,reponse){
 		console.log(body);
 	})
