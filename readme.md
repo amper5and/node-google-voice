@@ -31,9 +31,9 @@ I've only tested google-voice in Node 0.4.7. Theoretically, it should work fine 
 ## Instantiate a Google Voice client
 
 Google Voice client instances are made by calling 
-
+```javascript
 	voiceClient = new require('google-voice').Client(options)
-	
+```
 where `options` is an Object with the following properties:
 
 * `email` (String) - your Google Voice login email
@@ -46,13 +46,14 @@ where `options` is an Object with the following properties:
 	* You only have to do this once, because the `_rnr_se` doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that your `_rnr_se` hasn't changed.)
 
 #### Example:  Create a GV client instance
+```javascript
 	var GV = require('google-voice');
 	var voiceClient = new GV.Client({
 		email: 'username@gmail.com',
 		password: 'password',
 		rnr_se: '_rnr_se from Google Voice web page'
 	});
-	
+```
 ## Preliminaries
 In the examples below:
 
@@ -73,28 +74,31 @@ In the examples below:
 
 ## Calling and Texting
 #### Example:  Place a call:
+```javascript
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType,function(body,response){
 		console.log(body);
 	});
-	
+```	
 or
-	
+```javascript	
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType);
-
+```
 #### Example:  Send an SMS to one number:
+```javascript
 	voiceClient.sendSMS(outgoingNumber,textMessage,function(body,response){
 		console.log(body);
 	});
-	
+```	
 or
-
+```javascript
 	voiceClient.sendSMS(outgoingNumber,textMessage);
-
+```
 #### Example:  Send an SMS to multiple numbers:
+```javascript
 	voiceClient.sendSMS([outgoingNumber1,outgoingNumber2],textMessage,function(body,response){
 		console.log(body);
 	});
-
+```
 Note that the `callbacks` are optional.
 
 
@@ -127,6 +131,7 @@ NOTE: If the date & time of an event is before the current system time, the even
 NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be unscheduled.
 
 #### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
+```javascript
 	voiceClient.scheduler('call',[2011,12,25,8,00],outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -134,22 +139,25 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
 		});
-
+```
 #### Example:  Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date:
+```javascript
 	voiceClient.scheduler('call',new Date(2011,11,25,8,00),outgoingNumber,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
 		});
-	
+```	
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
+```javascript
 	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',null,
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
-
+```
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 10:00 PM using a Date object to represent the date:
+```javascript
 	voiceClient.scheduler('sms',new Date(2011,11,25,22,00),outgoingNumber,'Hope you had a wonderful Christmas!');
-
+```
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
 ### Schedule calls from your Google Calendars
@@ -171,6 +179,7 @@ NOTE: If the `callLabel=outgoingNumber` is in both the event title and descripti
 Use case: Using this inside `setInterval()` is an easy way to periodically add new events to the schedule as they are added in Google Calendar.
 
 #### Example: Schedule calls from Google Calendar:
+```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -178,28 +187,28 @@ Use case: Using this inside `setInterval()` is an easy way to periodically add n
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
-
+```
 or
-
+```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
 		});
-		
+```		
 or
-
+```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,null,
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
-		
+```		
 or
-
+```javascript
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
- 
+```
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
-### Remove individual scheduled events:
+### Unschedule individual scheduled events
 To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
@@ -209,32 +218,29 @@ To remove one event from the schedule, call `voiceClient.unscheduler(date)` wher
 `voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
 
 #### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
-
+```javascript
 	voiceClient.unscheduler([2011,12,25,8,00]);
-	
+```	
 or
-
+```javascript
 	voiceClient.unscheduler(new Date(2011,11,25,8,00));
-
+```
 or
-
+```javascript
 	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
-
+```
 ### Unschedule all scheduled events
 To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
 #### Example:  Unschedule all scheduled events:
+```javascript
 	voiceClient.unscheduleAll(function(){
 		console.log('The schedule has been cleared.');
 	})
-
+```
 
 ## Retrieving GV Data
 ### Retrieve messages
-All data requests are of the following form: 
-	
-	voiceClient.get(request,limit,callback) 
-
-where:
+All data requests are of the following form: `voiceClient.get(request,limit,callback) ` where:
 
 * `request` (String or Object) is one of the following Strings:
 
@@ -252,13 +258,8 @@ where:
 			'received'
 			'recorded'
 	```	
-OR
-
-	```javascript
-			{query: searchString}
-	```
-
-This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+OR is query object: `{query: searchString}`
+	This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
@@ -298,19 +299,23 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
 
 ### Data retrieval examples
 #### Example:  retrieve and display the last missed call:
+
 ```javascript
 	voiceClient.get('missed',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
 ```
+
 #### Example:  retrieve all SMS messages:
+
 ```javascript
 	voiceClient.get('sms',-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' SMSs found.');
 	});
 ```
+
 #### Example:  retrieve the 10 most recent items from the inbox:
 
 ```javascript
@@ -364,11 +369,7 @@ Every time a `voiceClient.get()` request is made, the voice client's `unreadCoun
 ```
 
 ## Manipulating GV Data
-All data manipulation requests are of the following form: 
-	
-	voiceClient.set(param,messageID,callback) 
-
-where:
+All data manipulation requests are of the following form: `voiceClient.set(param,messageID,callback) ` where:
 
 * `param` (String) is one of the following Strings:
 
