@@ -11,29 +11,27 @@ First install node-google-voice in the usual manner for node:
 	
 	npm install google-voice
 
-See [npm](https://github.com/isaacs/npm) for information on installing npm, the Node Package Manager.
+See [the npm page](https://github.com/isaacs/npm) for information on installing npm, the Node Package Manager.
 
 ### Dependencies
 node-google-voice depends on:
 
-* [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin)
-* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js/)
-* [jsdom](https://github.com/tmpvar/jsdom)
+* [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin) - used for authentication for Google Voice and Google Calendar
+* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js/) - used for extracting JSON & HTML data from Google Voice XML responses
+* [jsdom](https://github.com/tmpvar/jsdom) - used for extracting SMS messages from Google Voice HTML responses
 
-[npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing those modules (and *their* dependencies) independently.
+[npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing these modules (and *their* dependencies) independently.
 
 ### Node.js version
-I've only tested google-voice in Node 0.4.7. Theoretically, it should work fine in older versions, as long as:
+node-google-voice has only been tested in Node 0.4.7. Theoretically, it should work fine in older versions, as long as:
 
 * those versions are supported by the dependencies and 
 * the particular Node version's `https` is not much different from v0.4.7's. This is the only major core Node module used by node-google-voice.
 
-## Instantiate a Google Voice client
+## Instantiate a Google Voice client ( new GV.Client(options) )
 
-Google Voice client instances are made by calling 
-```javascript
-	voiceClient = new require('google-voice').Client(options)
-```
+Google Voice client instances are made by calling `voiceClient = new require('google-voice').Client(options)` where
+
 where `options` is an Object with the following properties:
 
 * `email` (String) - your Google Voice login email
@@ -72,7 +70,7 @@ In the examples below:
 	The body object/string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
 * `response` (http.ClientResponse) is an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right!) and act on it. 
 
-## Calling and Texting
+## Calling and Texting ( GVClient.placeCall() & GVClient.sendSMS() )
 #### Example:  Place a call:
 ```javascript
 	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType,function(body,response){
@@ -113,7 +111,7 @@ Note that the `callbacks` are optional.
 
 ## Schedule calls and SMS's
 
-### The schedule
+### The schedule ( GVClient.schedule )
 Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event will be removed from the schedule object. 
 The name of each event object in the `schedule` object is the ISO String representation of the Date of the event (using ` Date.toISOString() `). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM,  `voiceClient.schedule` will contain the object `voiceClient.schedule['2011-12-25T13:00:00.000Z']` .
 
@@ -124,7 +122,7 @@ Each scheduled event ( `voiceClient.schedule[ISOdateString]` ) will contain at l
 
 The other properties of `voiceClient.schedule[ISOdateString]` will be event-specific items such as `outgoingNumber`, `forwardingNumber`, `text`, etc...
 
-### Scheduling events
+### Scheduling events ( GVClient.scheduler() )
 Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` where
 
 * `type` (String) is either `'sms'` or `'call'`
@@ -169,7 +167,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 ```
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
-### Schedule calls from your Google Calendars
+### Schedule calls from your Google Calendars ( GVClient.scheduleCallsFromCalendar() )
 Schedule calls from your Google Calendars with: `voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,eventCallback,scheduleCallback)` where
 
 * `callLabel` (String) is the string used in Calendar event title/details in the format `callLabel=outgoingNumber` where `outgoingNumber` is the number you will be connected to.
@@ -225,7 +223,7 @@ or
 
 Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
 
-### Unschedule individual scheduled events
+### Unschedule individual scheduled events ( GVClient.unscheduler() )
 To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
@@ -252,7 +250,7 @@ or
 	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
 ```
 
-### Unschedule all scheduled events
+### Unschedule all scheduled events ( GVClient.unscheduleAll() )
 To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
 #### Example:  Unschedule all scheduled events:
 
@@ -262,8 +260,8 @@ To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. T
 	})
 ```
 
-## Retrieving GV Data
-### Retrieve messages
+## Retrieving GV Data ( GVClient.get() )
+### Retrieve messages 
 All data requests are of the following form: `voiceClient.get(request,limit,callback) ` where:
 
 * `request` (String or Object) is:
@@ -377,7 +375,7 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
 	});
 ```
 
-## Unread counts
+## Unread counts ( GVClient.unreadCounts )
 Every time a `voiceClient.get()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
 
 ```javascript
@@ -395,7 +393,7 @@ Every time a `voiceClient.get()` request is made, the voice client's `unreadCoun
 		}
 ```
 
-## Manipulating GV Data
+## Manipulating GV Data ( GVClient.set() )
 All data manipulation requests are of the following form: `voiceClient.set(param,messageID,callback) ` where:
 
 * `param` (String) is one of the following Strings:
@@ -431,8 +429,9 @@ All data manipulation requests are of the following form: `voiceClient.set(param
 ```
 
 ## TODO
-* Schedule SMS's with Google Calendar
 * Detect removed scheduling events in Google Calendar
+* Set message notes
+* Schedule SMS's with Google Calendar
 * Get and set Google Voice settings
 * Retrieve contacts
 * Download/stream voicemail MP3s
