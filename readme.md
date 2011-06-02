@@ -44,7 +44,7 @@ where `options` is an Object with the following properties:
 		rnr_se: '_rnr_se from Google Voice web page'
 	});
 	
-## Introduction
+## Preliminaries
 In the examples below:
 
 * `textMessage` (String) is the SMS to send
@@ -108,7 +108,7 @@ Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,sch
 * `type` (String) is either 'sms' or 'call'
 * `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
 * `...` represents the normal variables associated with the event (such as outgoingNumber, textMessage, etc...see above)
-* `eventCallback` (Function) is of the form `function(body,response), where` body and response are the same Objects as described earlier in the INTRO. This callback is called AT THE TIME OF THE EVENT.
+* `eventCallback` (Function) is of the form `function(body,response), where `body` and `response` are the same Objects as described earlier in the Preliminaries section. This callback is called AT THE TIME OF THE EVENT.
 * `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`. This callback is called after the event has been successfully SCHEDULED. The parameters are: 
     * `schedulingID` (String) is the ISO string representation of the date of the event. 
     * `sheduledEvent` (Object) is the event object from `voiceClient.schedule` corresponding to the scheduled event.
@@ -320,7 +320,7 @@ where:
 		'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
 
 * `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
-* `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Introduction
+* `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
 
 #### Example:  star a message
 	voiceClient.set('star',messageID,function(body,reponse){
