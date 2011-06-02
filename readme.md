@@ -237,6 +237,8 @@ where:
 
 * `request` (String or Object) is one of the following Strings:
 
+```javascript
+
 		'history'
 		'inbox'
 		'spam'
@@ -247,13 +249,20 @@ where:
 		'placed'
 		'missed'
 		'received'
-		'recorded'	
+		'recorded'
+```	
 OR
 
+```javascript
 		{query: searchString}
+```
+
 This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
+
+```javascript
 		
 		{ id: 'someStringIdentifier',
 		  phoneNumber: '+18005551212',
@@ -271,10 +280,11 @@ This last form retrieves messages that match the given searchString (String) in 
 		  type: 0,
 		  children: '' 
 		}
-NOTE: SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
+```		
+SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
 
-* `lastText` (String) is the most recent text in the thread
-* `thread` (Array) is the collection of text messages in the SMS thread. Each item in this Array is a DOM element (made with jsdom!) that has three children, corresponding to the time, from, and text of the SMS. 
+* `lastText` (String) is the most recent SMS in the thread
+* `thread` (Array) is the collection of text messages in the SMS thread. Each item in this Array is a DOM element (made with jsdom) that has three children, corresponding to the `time`, `from`, and `text` of the SMS. 
    A convenience method is provided to extract this information from text message DOM elements:
 	
 		voiceClient.parseSMS(param,msgDomElement)
@@ -315,14 +325,18 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 	});
 
 #### Example:  find all texts/calls from 'mom' or that mention 'mom':
+
+```javascript
 	voiceClient.get({query: 'mom'},-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' messages found.');
 	});
+```
 
 ## Unread counts
 Every time a `voiceClient.get()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
 
+```javascript
 			{ all: 3,
 			  inbox: 3,
 			  missed: 0,
@@ -335,7 +349,7 @@ Every time a `voiceClient.get()` request is made, the voice client's `unreadCoun
 			  unread: 3,
 			  voicemail: 2
 			}
-
+```
 
 ## Manipulating GV Data
 All data manipulation requests are of the following form: 
@@ -346,6 +360,7 @@ where:
 
 * `param` (String) is one of the following Strings:
 
+```javascript
 		'markRead'
 		'markUnread'
 		'archive'
@@ -354,6 +369,7 @@ where:
 		'unstar'
 		'deleteForever'
 		'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+```
 
 * `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
 * `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
@@ -365,10 +381,11 @@ where:
 	})
 ```
 #### Example:  archive a bunch of messages:
+```javascript
 	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,response){
 		console.log(body);
 	})
-
+```
 
 ## TODO
 * Schedule SMS's with Google Calendar
