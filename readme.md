@@ -86,7 +86,7 @@ where
 * `scheduleCallback` (Function) is of the form function(schedulingID, scheduledEvent), where 
     * `schedulingID` (String) is the ISO string representation of the date of the event. 
     * `sheduledEvent` (Object) is the event object from voiceClient.schedule corresponding to the scheduled event.
-  This callback is called after the event has been succesfully SCHEDULED.
+   This callback is called after the event has been succesfully SCHEDULED.
 	
 NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduing request will fail silently.
 
@@ -236,7 +236,7 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
 
-#### Example: # retrieve all sms messages
+#### Example:  retrieve all sms messages
 	voiceClient.get('sms',-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' SMSs found.');
@@ -283,11 +283,11 @@ where:
 		'unarchive'
 		'star'
 		'unstar'
-		'deleteForever' : deletes the message F O R E V E R
-		'toggleTrash' : calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+		'deleteForever'
+		'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
 
 * `messageID` (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
-* `callback` (Function) is of the form function(body, response) where body and response are described in the INTRODUCTION
+* `callback` (Function) is of the form function(body, response) where body and response are described above in the Intro
 
 #### Example:  star a message
 	voiceClient.set('star',messageID,function(body,reponse){
@@ -301,9 +301,8 @@ where:
 
 
 ## Unread counts
-Every time a get or set request is made, the voice client object's unreadCounts object is updated with the most current information from Google Voice. At the time of this writing, an example unreadCounts object looked like this:
+Every time a get or set request is made, the voice client object's `unreadCounts` object is updated with the most current information from Google Voice. At the time of this writing, an example unreadCounts object looked like this:
 	
-	voiceClient.unreadCounts
 		{ all: 3,
 		  inbox: 3,
 		  missed: 0,

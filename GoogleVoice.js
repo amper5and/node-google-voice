@@ -213,7 +213,7 @@ exports.Client.prototype.getURLs= {
 	trash: 		'/voice/inbox/recent/trash/',
 	starred: 	'/voice/inbox/recent/starred/',
 	sms: 		'/voice/inbox/recent/sms/',
-	voicemail: '/voice/inbox/recent/voicemail/',
+	voicemail: 	'/voice/inbox/recent/voicemail/',
 	placed: 	'/voice/inbox/recent/placed/',
 	missed: 	'/voice/inbox/recent/missed/',
 	received: 	'/voice/inbox/recent/received/',
