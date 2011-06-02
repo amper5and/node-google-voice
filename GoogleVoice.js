@@ -136,6 +136,16 @@ exports.Client.prototype.unscheduler=function(date){
 	}
 };
 
+exports.Client.prototype.unscheduleAll=function(callback){
+	var gv = this;
+	for (evt in gv.schedule){
+		gv.unscheduler(evt);
+		console.log(evt);
+	}
+	if(callback){	callback(); }
+};
+
+
 exports.Client.prototype.scheduler=function(type,date){
 	var gv = this;
 	var currentTime = new Date(),

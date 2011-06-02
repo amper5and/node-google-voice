@@ -129,7 +129,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 **Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.**
  	
 ## Remove scheduled events
-To remove an event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
+To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
 * Date 
@@ -149,6 +149,11 @@ or
 
 	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
 
+To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional.
+#### Example:  Unschedule all scheduled events:
+	voiceClient.unscheduleAll(function(){
+		console.log('The schedule is empty');
+	})
 
 ## Schedule calls from your Google Calendars
 This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
