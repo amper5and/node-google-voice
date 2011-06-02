@@ -229,6 +229,7 @@ To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. T
 
 
 ## Retrieving GV Data
+### Retrieve messages
 All data requests are of the following form: 
 	
 	voiceClient.get(request,limit,callback) 
@@ -262,25 +263,27 @@ This last form retrieves messages that match the given searchString (String) in 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
 
-```javascript
+	```javascript
 		
-		{ id: 'someStringIdentifier',
-		  phoneNumber: '+18005551212',
-		  displayNumber: '(800) 555-1212',
-		  startTime: '1305138033000',
-		  displayStartDateTime: '5/11/11 2:20 PM',
-		  displayStartTime: '2:20 PM',
-		  relativeStartTime: '3 weeks ago',
-		  note: '',
-		  isRead: true,
-		  isSpam: false,
-		  isTrash: false,
-		  star: false,
-		  labels: [ 'missed', 'all' ],
-		  type: 0,
-		  children: '' 
-		}
-```		
+			{ id: 'someStringIdentifier',
+			  phoneNumber: '+18005551212',
+			  displayNumber: '(800) 555-1212',
+			  startTime: '1305138033000',
+			  displayStartDateTime: '5/11/11 2:20 PM',
+			  displayStartTime: '2:20 PM',
+			  relativeStartTime: '3 weeks ago',
+			  note: '',
+			  isRead: true,
+			  isSpam: false,
+			  isTrash: false,
+			  star: false,
+			  labels: [ 'missed', 'all' ],
+			  type: 0,
+			  children: '' 
+			}
+	```	
+	
+### SMS messages	
 SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
 
 * `lastText` (String) is the most recent SMS in the thread
@@ -293,28 +296,37 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
     * `param` (String) is one of 'time', 'from', or 'text'
     * `msgDomElement` is the DOM element from the thread Array
 
-
+### Data retrieval examples
 #### Example:  retrieve and display the last missed call:
+```javascript
 	voiceClient.get('missed',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
-
-#### Example:  retrieve all sms messages:
+```
+#### Example:  retrieve all SMS messages:
+```javascript
 	voiceClient.get('sms',-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' SMSs found.');
 	});
-
+```
 #### Example:  retrieve the 10 most recent items from the inbox:
+
+```javascript
+
 	voiceClient.get('inbox',10,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		for(var i=0; i<msgs.length; i++){
 			console.log(msgs[i]);
 		}
 	});
+```
 
 #### Example:  display the most recent SMS thread:
+
+```javascript
+
 	voiceClient.get('sms',1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('latest SMS thread:');
@@ -323,7 +335,7 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
 			console.log(voiceClient.parseSMS('time',currentMsg)+' '+voiceClient.parseSMS('from',currentMsg)+voiceClient.parseSMS('text',currentMsg) );
 		}
 	});
-
+```
 #### Example:  find all texts/calls from 'mom' or that mention 'mom':
 
 ```javascript
@@ -360,27 +372,30 @@ where:
 
 * `param` (String) is one of the following Strings:
 
-```javascript
-		'markRead'
-		'markUnread'
-		'archive'
-		'unarchive'
-		'star'
-		'unstar'
-		'deleteForever'
-		'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
-```
+	```javascript
+			'markRead'
+			'markUnread'
+			'archive'
+			'unarchive'
+			'star'
+			'unstar'
+			'deleteForever'
+			'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+	```
 
 * `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
 * `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
 
 #### Example:  star a message:
+
 ```javascript
 	voiceClient.set('star',messageID,function(body,response){
 		console.log(body);
 	})
 ```
+
 #### Example:  archive a bunch of messages:
+
 ```javascript
 	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,response){
 		console.log(body);
