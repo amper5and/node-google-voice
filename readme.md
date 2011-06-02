@@ -341,7 +341,7 @@ where:
 
 
 ## Unread counts
-Every time a get or set request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `unreadCounts` object looked like this:
+Every time a `set()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
 	
 		{ all: 3,
 		  inbox: 3,
