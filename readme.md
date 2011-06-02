@@ -270,7 +270,7 @@ All data manipulation requests are of the following form:
 
 where:
 
-* `param` (String) on of the following Strings:
+* `param` (String) one of the following Strings:
 
 		'markRead'
 		'markUnread'
@@ -296,7 +296,7 @@ where:
 
 
 ## Unread counts
-Every time a get or set request is made, the voice client object's `unreadCounts` object is updated with the most current information from Google Voice. At the time of this writing, an example unreadCounts object looked like this:
+Every time a get or set request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `unreadCounts` object looked like this:
 	
 		{ all: 3,
 		  inbox: 3,
@@ -313,5 +313,6 @@ Every time a get or set request is made, the voice client object's `unreadCounts
 
 
 
-
+## Conclusion
+Google does not have an official Google Voice API. Therefore, the nature of the returned data can change. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout and I'll do my best to address them. I have not trained as a developer - I do this is a hobby - so I'm open to any constructive criticism on best coding practices and the like. 
 Enjoy!
