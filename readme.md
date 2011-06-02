@@ -143,7 +143,7 @@ NOTE: Only one event can be scheduled for a particular time, regarless of event 
 		});
 		
 ## Remove scheduled events
-To remove an event from the schedule, call voiceClient.unscheduler(date) where date is the dateTime of the event and is one of the following types:
+To remove an event from the schedule, call `voiceClient.unscheduler(date)` where **date** is the dateTime of the event and is one of the following types:
 
 * Array (in the format discussed above)
 * Date 
