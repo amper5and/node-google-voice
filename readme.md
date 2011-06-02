@@ -118,10 +118,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 		});
 	
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date
-	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',
-		function(body,response){
-			console.log(body);
-		},
+	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',null,
 		function(schedulingID, evt){
 			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
 		});
@@ -129,7 +126,7 @@ NOTE: Only one event can be scheduled for a particular time, regardless of event
 #### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using a Date object to represent the date
 	voiceClient.scheduler('sms',new Date(2011,11,25,8,00),outgoingNumber,'Merry Christmas!');
 
-Note that all of the above requests are valid: you can include both callbacks, just the eventCallback, or no callbacks.
+**Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.**
  	
 ## Remove scheduled events
 To remove an event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
@@ -170,8 +167,23 @@ NOTE: If the `callLabel=outgoingNumber` is in both the event title and descripti
 
 or
 
+	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
+		function(body,response){
+			console.log(body);
+		});
+		
+or
+
+	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,null,
+		function(schedulingID, evt){
+			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
+		});
+		
+or
+
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
 	
+**Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.**
 
 ## Retrieving GV Data
 All data requests are of the following form: 
