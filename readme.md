@@ -2,6 +2,14 @@
 First install node-google-voice in the usual manner for node:
 	
 	npm install google-voice
+### Dependencies
+node-google-voice depends on:
+
+* [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin)
+* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js/)
+* [jsdom](https://github.com/tmpvar/jsdom)
+
+npm should take care of dependencies, but in case it fails to do so, try installing those modules independently.
 
 ## Instantiate a Google Voice client
 
