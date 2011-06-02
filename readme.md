@@ -197,8 +197,9 @@ OR
 
 This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 
-* `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So limit=1 will return the most recent message of the given request and limit=10 will return the 10 most recent messages. If limit == -1, ALL messages will be returned (can be slow for very large inboxes).
-* `callback` (Function) is of the form function(error,messages) where messages is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
+* `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
+* `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
+		
 		{ id: 'someStringIdentifier',
 		  phoneNumber: '+18005551212',
 		  displayNumber: '(800) 555-1212',
@@ -303,6 +304,7 @@ where:
 
 ## Unread counts
 Every time a get or set request is made, the voice client object's unreadCounts object is updated with the most current information from Google Voice. At the time of this writing, an example unreadCounts object looked like this:
+	
 	voiceClient.unreadCounts
 		{ all: 3,
 		  inbox: 3,
