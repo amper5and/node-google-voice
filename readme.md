@@ -152,7 +152,7 @@ or
 To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
 #### Example:  Unschedule all scheduled events:
 	voiceClient.unscheduleAll(function(){
-		console.log('The schedule is empty');
+		console.log('The schedule has been cleared.');
 	})
 
 ## Schedule calls from your Google Calendars
