@@ -106,17 +106,17 @@ The name of each event object in the `schedule` object is the ISO String represe
 
 Each scheduled event ( `voiceClient.schedule[ISOdateString]` ) will contain at least the following properties:
 
-* `type` (String): will be either 'call' or 'sms' indicating the event type
-* `timer` (timeoutId): the timer object (http://nodejs.org/docs/v0.4.7/api/timers.html) created by setTimeout()
+* `type` (String): will be either `'call'` or `'sms'`, indicating the event type
+* `timer` (timeoutId): the [timer object](http://nodejs.org/docs/v0.4.7/api/timers.html) created by the `setTimeout()` that schedules the event
 
 The other properties of `voiceClient.schedule[ISOdateString]` will be event-specific items such as `outgoingNumber`, `forwardingNumber`, `text`, etc...
 
 ### Scheduling events
 Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` where
 
-* `type` (String) is either 'sms' or 'call'
+* `type` (String) is either `'sms'` or `'call'`
 * `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
-* `...` represents the normal variables associated with the event (such as outgoingNumber, textMessage, etc...see above)
+* `...` represents the normal variables associated with the event (such as `outgoingNumber`, `textMessage`, etc...see above)
 * `eventCallback` (Function) is of the form `function(body,response), where `body` and `response` are the same Objects as described earlier in the Preliminaries section. This callback is called AT THE TIME OF THE EVENT.
 * `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`. This callback is called after the event has been successfully SCHEDULED. The parameters are: 
     * `schedulingID` (String) is the ISO string representation of the date of the event. 
@@ -359,12 +359,13 @@ where:
 * `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
 
 #### Example:  star a message:
-	voiceClient.set('star',messageID,function(body,reponse){
+```javascript
+	voiceClient.set('star',messageID,function(body,response){
 		console.log(body);
 	})
-
+```
 #### Example:  archive a bunch of messages:
-	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,reponse){
+	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,response){
 		console.log(body);
 	})
 
