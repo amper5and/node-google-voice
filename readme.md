@@ -306,6 +306,21 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 		console.log(msgs.length + ' messages found.');
 	});
 
+## Unread counts
+Every time a `voiceClient.get()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
+
+			{ all: 3,
+			  inbox: 3,
+			  missed: 0,
+			  placed: 0,
+			  received: 0,
+			  recorded: 0,
+			  sms: 1,
+			  starred: 0,
+			  trash: 4,
+			  unread: 3,
+			  voicemail: 2
+			}
 
 
 ## Manipulating GV Data
@@ -338,23 +353,6 @@ where:
 	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,reponse){
 		console.log(body);
 	})
-
-
-## Unread counts
-Every time a `set()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
-	
-		{ all: 3,
-		  inbox: 3,
-		  missed: 0,
-		  placed: 0,
-		  received: 0,
-		  recorded: 0,
-		  sms: 1,
-		  starred: 0,
-		  trash: 4,
-		  unread: 3,
-		  voicemail: 2
-		}
 
 
 ## TODO
