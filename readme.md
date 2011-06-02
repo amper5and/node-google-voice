@@ -193,27 +193,28 @@ where:
 		'received'
 		'recorded'	
 OR
-	{query: searchString}
+		{query: searchString}
 
 This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So limit=1 will return the most recent message of the given request and limit=10 will return the 10 most recent messages. If limit == -1, ALL messages will be returned (can be slow for very large inboxes).
 * `callback` (Function) is of the form function(error,messages) where messages is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
-	{ id: 'someStringIdentifier',
-	  phoneNumber: '+18005551212',
-	  displayNumber: '(800) 555-1212',
-	  startTime: '1305138033000',
-	  displayStartDateTime: '5/11/11 2:20 PM',
-	  displayStartTime: '2:20 PM',
-	  relativeStartTime: '3 weeks ago',
-	  note: '',
-	  isRead: true,
-	  isSpam: false,
-	  isTrash: false,
-	  star: false,
-	  labels: [ 'missed', 'all' ],
-	  type: 0,
-	  children: '' 
-	}
+		{ id: 'someStringIdentifier',
+		  phoneNumber: '+18005551212',
+		  displayNumber: '(800) 555-1212',
+		  startTime: '1305138033000',
+		  displayStartDateTime: '5/11/11 2:20 PM',
+		  displayStartTime: '2:20 PM',
+		  relativeStartTime: '3 weeks ago',
+		  note: '',
+		  isRead: true,
+		  isSpam: false,
+		  isTrash: false,
+		  star: false,
+		  labels: [ 'missed', 'all' ],
+		  type: 0,
+		  children: '' 
+		}
 
 NOTE: SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
 
@@ -277,14 +278,14 @@ where:
 
 * `param` (String) on of the following Strings:
 
-	'markRead'
-	'markUnread'
-	'archive'
-	'unarchive'
-	'star'
-	'unstar'
-	'deleteForever' : deletes the message F O R E V E R
-	'toggleTrash' : calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+		'markRead'
+		'markUnread'
+		'archive'
+		'unarchive'
+		'star'
+		'unstar'
+		'deleteForever' : deletes the message F O R E V E R
+		'toggleTrash' : calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
 
 * `messageID` (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
 * `callback` (Function) is of the form function(body, response) where body and response are described in the INTRODUCTION
