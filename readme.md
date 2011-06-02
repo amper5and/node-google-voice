@@ -155,12 +155,12 @@ or
 
 
 ## Schedule calls from your Google Calendars
-This searches your Google Calendars for events with callLabel (String) in the event title or event description and schedules calls for the outgoingNumber at that event time.
-The format in the event title/details should be: callLabel=outgoingNumber
-For example, if callLabel='GVCall', then the event title or description in Google Calendar can contain GVCall=18005551212 to schedule a call to 18005551212. Note the absence of spaces in that string. 
+This searches your Google Calendars for events with `callLabel` (String) in the event title or event description and schedules calls for the `outgoingNumber` at that event time.
+The format in the event title/details should be: `callLabel=outgoingNumber`.
+For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212. Note the absence of spaces in that string. 
 
-NOTE: If the callLabel=outgoingNumber is in both the event title and description, the one in the title will be used.
-
+NOTE: If the `callLabel=outgoingNumber` is in both the event title and description, the one in the title will be used.
+#### Example: Schedule calls from Google Calendar
 	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
 		function(body,response){
 			console.log(body);
@@ -181,18 +181,17 @@ where:
 
 * `request` (String or Object) is one of the following Strings:
 
-	'history'
-	'inbox'
-	'spam'
-	'trash'
-	'starred'
-	'sms'
-	'voicemail'
-	'placed'
-	'missed'
-	'received'
-	'recorded'
-	
+		'history'
+		'inbox'
+		'spam'
+		'trash'
+		'starred'
+		'sms'
+		'voicemail'
+		'placed'
+		'missed'
+		'received'
+		'recorded'	
 OR
 	{query: searchString}
 
