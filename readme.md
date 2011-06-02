@@ -270,7 +270,7 @@ All data manipulation requests are of the following form:
 
 where:
 
-* `param` (String) one of the following Strings:
+* `param` (String) is one of the following Strings:
 
 		'markRead'
 		'markUnread'
