@@ -237,25 +237,25 @@ where:
 
 * `request` (String or Object) is one of the following Strings:
 
-```javascript
+	```javascript
 
-		'history'
-		'inbox'
-		'spam'
-		'trash'
-		'starred'
-		'sms'
-		'voicemail'
-		'placed'
-		'missed'
-		'received'
-		'recorded'
-```	
+			'history'
+			'inbox'
+			'spam'
+			'trash'
+			'starred'
+			'sms'
+			'voicemail'
+			'placed'
+			'missed'
+			'received'
+			'recorded'
+	```	
 OR
 
-```javascript
-		{query: searchString}
-```
+	```javascript
+			{query: searchString}
+	```
 
 This last form retrieves messages that match the given searchString (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
 
