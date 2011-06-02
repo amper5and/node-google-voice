@@ -1,6 +1,7 @@
 ## Installation
 First install node-google-voice in the usual manner for node:
-	npm install googlevoice
+	
+	npm install google-voice
 
 Google Voice client instances are made by calling voiceClient = new require('google-voice').Client(options), where options is an Object with the following properties:
 * email (String) - your Google Voice login email
