@@ -1,3 +1,11 @@
+## What is it?
+It's the Google Voice API in node.js. Except there is no official "Google Voice API", so it's the only Google Voice API. It allows you to 
+
+* place calls
+* send SMS's
+* schedule calls and SMS's from inside node or with Google Calendar
+* access & manipulate GV data
+
 ## Installation
 First install node-google-voice in the usual manner for node:
 	
@@ -261,13 +269,13 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
 
-#### Example:  retrieve all sms messages
+#### Example:  retrieve all sms messages:
 	voiceClient.get('sms',-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' SMSs found.');
 	});
 
-#### Example:  retrieve the 10 most recent items from the inbox
+#### Example:  retrieve the 10 most recent items from the inbox:
 	voiceClient.get('inbox',10,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		for(var i=0; i<msgs.length; i++){
@@ -285,7 +293,7 @@ NOTE: SMS messages are grouped under one message ID by Google Voice. In order to
 		}
 	});
 
-#### Example:  find all messages related to 'mom' (texts/calls from 'mom' or that mention 'mom')
+#### Example:  find all texts/calls from 'mom' or that mention 'mom':
 	voiceClient.get({query: 'mom'},-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' messages found.');
@@ -311,8 +319,8 @@ where:
 		'deleteForever'
 		'toggleTrash' - calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
 
-* `messageID` (String or Array) is the String/Array of unique message id(s). This ID can be had from the message objects returned by voiceClient.get() (discussed earlier)
-* `callback` (Function) is of the form function(body, response) where body and response are described above in the Intro
+* `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
+* `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Introduction
 
 #### Example:  star a message
 	voiceClient.set('star',messageID,function(body,reponse){
@@ -349,5 +357,5 @@ Every time a get or set request is made, the voice client's `unreadCounts` prope
 
 
 ## Conclusion
-Google does not have an official Google Voice API. Therefore, the nature of the requests and returned data can change. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout and I'll do my best to address them. I have not trained as a developer (I code only as a hobby), so I'm also open to any constructive criticism on best coding practices and the like. 
+Google does not have an official Google Voice API. Therefore, the nature of the requests and returned data can change without notice. It is unlikely to change often or soon, but I will make all efforts to keep up with the most current implementation. If you have any issues, please give me a shout, and I'll do my best to address them. I have not trained as a developer (I code only as a hobby), so I'm also open to any constructive criticism on best coding practices and the like. 
 Enjoy!
