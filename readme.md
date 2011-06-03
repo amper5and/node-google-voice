@@ -1,5 +1,5 @@
 ## What is it?
-It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only Google Voice API. It allows you to 
+It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. It allows you to 
 
 * place calls
 * send SMS's
