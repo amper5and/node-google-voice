@@ -38,7 +38,7 @@ var ERROR_CODES={
 
 I don't really know much about how this type of stuff is usually done, so I'm open to any input on what would be the best/standard way to do this.
 
-## GVClient.parseSMS --> msg.parse
+## GVClient.parseSMS(param,msgDOMelement) --> msgDOMelement.getValue(param)
 The current `GVClient.parseSMS(param,msgDOMelement)` is awkward. I think it would be better to give the SMS DOM element a `getValue()` method that can be called to get the `time`, `from`, or `text` of the SMS:
 
 So, the example of displaying the SMS thread, which is currently:
