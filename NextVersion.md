@@ -1,4 +1,4 @@
-# Some thoughts on the next version of node-google-voice
+# Some thoughts on the next update to node-google-voice
 Here, I'm including some ideas and thoughts about what I want to change/add/improve in the next update:
 
 ## A common call/text method
