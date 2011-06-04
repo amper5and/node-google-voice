@@ -21,3 +21,19 @@ This would also mean a change for the way scheduling works: It could be `GVClien
 Right now, the short-hand date Array uses `[YEAR, MONTH, DAY, HOUR, MINUTE]` in `GVClient.scheduler` and `GVClient.unschedule`. I think it would be good to allow drilling all the way down to the millisecond to be consistent with the level of control that the native `Date` object provides. 
 
 Each of those entries in the date Array should be optional and default to `null` if not set. So if someone just specifies `[YEAR]` it would schedule the event for Jan 01 12:00AM of that year, and if someone gives `[YEAR,MONTH,DAY]` it would schedule the event for YEAR/MONTH/DAY 12:00AM
+
+## Proper error handling
+Each callback should follow the Node convention of having `error` as the first parameter. Right now, callbacks are not consistent in node-google-voice. I think it would be useful to provide an error code in `error` that can then be matched in an `ERROR_CODES` array to see what went wrong. For example:
+
+```javascript
+var ERROR_CODES={
+	1: 'Connection method not specified',
+	2: 'Invalid connection method',
+	3: 'Outgoing number not specified',
+	4: 'Invalid outgoing number',
+	5: 'Forwarding number not specified',
+	6: 'Forwarding number phone type not specified'
+}
+```
+
+I don't really know much about how this type of stuff is usually done, so I'm open to any input on what would be the best/standard way to do this.
