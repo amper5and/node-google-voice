@@ -37,3 +37,33 @@ var ERROR_CODES={
 ```
 
 I don't really know much about how this type of stuff is usually done, so I'm open to any input on what would be the best/standard way to do this.
+
+## GVClient.parseSMS --> msg.parse
+The current `GVClient.parseSMS(param,msgDOMelement)` is awkward. I think it would be better to give the SMS DOM element a `getValue()` method that can be called to get the `time`, `from`, or `text` of the SMS:
+
+So, the example of displaying the SMS thread, which is currently:
+
+```javascript
+
+voiceClient.get('sms',1,function(err,msgs){
+        if(err){ console.log('error on request: '+err); return; }
+        console.log('latest SMS thread:');
+        for(var i=0;i<msgs[0].thread.length;i++){
+            var currentMsg = msgs[0].thread[i];
+            console.log(voiceClient.parseSMS('time',currentMsg)+' '+voiceClient.parseSMS('from',currentMsg)+voiceClient.parseSMS('text',currentMsg) );
+        }
+    });
+```
+
+would be
+
+```javascript
+voiceClient.get('sms',1,function(err,msgs){
+        if(err){ console.log('error on request: '+err); return; }
+        console.log('latest SMS thread:');
+        for(var i=0;i<msgs[0].thread.length;i++){
+            var currentMsg = msgs[0].thread[i];
+            console.log(currentMsg.getValue('time') +' '+ currentMsg.getValue('from') + currentMsg.getValue('text');
+        }
+    });
+```
