@@ -129,8 +129,8 @@ var ERROR_CODES={
 	9: 'Event time preceeds current time',
 	10: 'Overwrote another scheduled event',
 	11: 'Cannot overwrite another scheduled event',
-	15: 'Invalid get request',
-	16: 'Limit below -1',
+	15: 'Invalid request',
+	16: 'Limit < -1',
 	20: 'Parse error',
 	600: 'HTTP error'
 }
@@ -146,7 +146,7 @@ exports.Client.prototype.STATUS_CODES = {
 	INVALID_EVENTTIME: 9,
 	OVERWROTE_EVENT: 10,
 	CANNOT_OVERWRITE_EVENT: 11,
-	INVALID_GET: 15,
+	INVALID_REQUEST: 15,
 	INVALID_LIMIT: 16,
 	PARSE_ERROR: 20,
 	HTTP_ERROR: 600
@@ -409,7 +409,7 @@ exports.Client.prototype.set=function(options, msgIDs,callback){
 		if(options.note){
 			var post_data = {
 				id: isArray(msgIDs) ? msgIDs[0] : msgIDs,
-				note: options.note || ' '
+				note: options.note
 			};
 			var options = 'savenote';
 		}else if(options.forward){
