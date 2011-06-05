@@ -31,6 +31,10 @@ function isObject(variable){
 	return variable.constructor.name == 'Object' ? true : false;
 }
 
+function isFunction(variable){
+	return variable.name == 'Function' ? true : false ;
+}
+
 function convertRFC3339(dString){
 	var idx = dString.lastIndexOf('-');
 	var fixedDateString = dString.substr(0,idx)+'-'+ (dString.substr(idx+1)[0] == '0' ? dString.substr(idx+2) : dString.substr(idx+1) );
@@ -46,31 +50,48 @@ exports.Client=function(options){
 };
 
 exports.Client.prototype.request = function(method,auth,path,post_data,callback){
-	var gv=this;
+	var gv = this;
 	var host = 'www.google.com';
-	
+	var POST = '',
+		GET = '';
+		
+	var thisRequest={
+		method:method,
+		auth: auth,
+		path:path,
+		post_data: post_data,
+		callback:callback
+	};
+		
 	if(isObject(path)){
-		host = path.host,
-		path = path.path
+		host = path.host;
+		path = path.path || '';
 	}
+	
+	if(post_data){
+		for(obj in post_data){
+			POST += obj + '=' +post_data[obj] + '&';
+		}
+		POST = POST.substr(0,POST.length-1);
+	}
+	if(method == 'POST'){
+		POST += '&_rnr_se='+gv.RNR_SE;
+	}else if(method == 'GET' && POST.length){
+		path = path + '?' + POST;
+		POST = '';
+	}
+	
 	var options={
 		host: host,
 		path: path,
 		method: method,
 		headers: { 'Authorization': 'GoogleLogin auth=' + auth.getAuthId() }
 	};
-	var thisRequest={
-		method:method,
-		auth: auth,
-		path:path,
-		post_data:post_data,
-		callback:callback
-	};
-	if(method=='POST'){
-		post_data+='&_rnr_se='+gv.RNR_SE;
-		options.headers['Content-Length']=post_data.length;
+	if(method == 'POST'){
+		options.headers['Content-Length']=POST.length;
 		options.headers['Content-Type']='application/x-www-form-urlencoded';
 	}
+	
 	var req = https.request(options,function(response){
 		if(response.statusCode==401){
 			auth.loginWithCB(function(){
@@ -90,180 +111,164 @@ exports.Client.prototype.request = function(method,auth,path,post_data,callback)
 			});
 		}
 	});
-	req.write(post_data);
+	if(method == 'POST'){
+		req.write(POST);
+	}
 	req.end();
 };
 
-exports.Client.prototype.sendSMS=function(numbers,text,callback){
-	var number = '';
-	var callback = callback || noop;
-	if(isArray(numbers)){
-		for(var i=0;i<numbers.length;i++){
-			number+=numbers[i]+', ' ;
-		}	
-	}else if(isString(number)){
-		number = numbers;
-	}else{
-		return;
-	}
-	var post_data='phoneNumber='+number+'&id='+'&text='+text;
-	this.request('POST',this.auth_voice,'/voice/sms/send/',post_data,function(body, response){
-		try{body = JSON.parse(body)}catch(e){}
-		callback(body, response);
-	});
-};
 
-exports.Client.prototype.placeCall=function(outgoingNum,forwardingNum,phoneType,callback){
-	var callback = callback || noop;
-	var post_data='outgoingNumber='+outgoingNum+'&forwardingNumber='+forwardingNum+'&subscriberNumber=undefined&remember=0&phoneType='+phoneType;
-	this.request('POST',this.auth_voice,'/voice/call/connect/',post_data,function(body, response){
-		try{body = JSON.parse(body)}catch(e){}
-		callback(body, response);
-	});
-};
-
-var ERRORCODES={
+var ERROR_CODES={
+	0: 'No errors',
 	1: 'Connection method not specified',
 	2: 'Invalid connection method',
 	3: 'Outgoing number not specified',
 	4: 'Invalid outgoing number',
 	5: 'Forwarding number not specified',
-	6: 'Forwarding number phone type not specified'
-}
-var CONNECTION_METHODS = {
-	'call' : connect_call,
-	'sms' : connect_sms
+	6: 'Forwarding number phone type not specified',
+	9: 'Event time preceeds current time',
+	10: 'Overwrote another scheduled event',
+	11: 'Cannot overwrite another scheduled event',
+	15: 'Invalid get request',
+	16: 'Limit below -1',
+	20: 'Parse error',
+	600: 'HTTP error'
 }
 
-function connect_call(gvClient, options,callback){
-	var forwardingNumber = options.forwardingNumber || null,
-		phoneType = options.phoneType || null,
-		remember = options.remember || 0;
-		
-	if(!forwardingNumber){	callback(5); return;}
-	if(!phoneType){	callback(6); return;}
-	
-	var post_data = 'outgoingNumber='+options.outgoingNumber+'&forwardingNumber='+forwardingNumber+'&subscriberNumber=undefined&remember='+remember+'&phoneType='+phoneType;
-	gvClient.request('POST',gvClient.auth_voice,'/voice/call/connect/',post_data,function(body, response){
-		try{body = JSON.parse(body)}catch(e){}
-		callback(null, body, response);
-	});
+exports.Client.prototype.STATUS_CODES = {
+	NO_ERRORS: 0,
+	NO_CONNECTION_METHOD: 1,
+	INVALID_CONNECTION_METHOD: 2,
+	NO_OUTGOINGNUM: 3,
+	INVALID_OUTGOINGNUM: 4,
+	NO_FORWARDINGNUM: 5,
+	NO_PHONETYPE: 6,
+	INVALID_EVENTTIME: 9,
+	OVERWROTE_EVENT: 10,
+	CANNOT_OVERWRITE_EVENT: 11,
+	INVALID_GET: 15,
+	INVALID_LIMIT: 16,
+	PARSE_ERROR: 20,
+	HTTP_ERROR: 600
 };
 
-function connect_sms(gvClient, options,callback){
-	var number = '',
-		outgoingNumber = options.outgoingNumber,
-		text = options.text || '';
+var CONNECT_METHODS=['sms','call','cancel'];
+
+function validateConnection( method,options,callback){
+	if(!method){ callback(1); return 1;}
+	if(!~CONNECT_METHODS.indexOf(method))	{ callback(2); return 2;}
+	var outgoingNumber = method!='cancel' ? (options.outgoingNumber || null) : 'undefined';
+	if(!outgoingNumber){ callback(3); return 3};
+	if(method == 'call'){
+		if(!options.forwardingNumber){ callback(5); return 5; }
+		if(!options.phoneType){ callback(6); return 6; }
+	}
+	return 0;
+	
+}
+exports.Client.prototype.connect=function(method,options,callback){
+	var gv = this;
+	callback = callback || ( isFunction(options) ? options : noop);
+	
+	var check = validateConnection(method,options,callback);
+	var status = check == 0 ? (options.status || 0) : check;
+	
+	if(options.date){
+		var date = options.date,
+			overwrite = options.overwrite == false ? false : true ,
+			currentTime = new Date(),
+			eventTime = (isArray(date) && date[0])? new Date(date[0], date[1]-1 || null, date[2] || null, date[3] || null, date[4] || null, date[5] || null, date[6] || null) : ( isDate(date) ? date : currentTime ),
+			eventTimeString = eventTime.toISOString(),
+			delay = eventTime-currentTime;
+		if(eventTime < currentTime){ callback(9); return 9;}
 		
-	if(isArray(outgoingNumber)){
-		for(var i=0;i<outgoingNumber.length;i++){
-			number+=outgoingNumber[i]+', ' ;
-		}	
-	}else if(isString(outgoingNumber)){
-		number = outgoingNumber;
-	}else{
-		callback(4);
-		return;
+		if(gv.schedule[eventTimeString]){
+			if(overwrite){
+				gv.unscheduler(eventTimeString);
+				var status = 10;
+			}else{
+				callback(11); return 11;
+			}	
+		}
+		
+		var newCallback= function(stat, body, response){
+			gv.unscheduler(eventTimeString);
+			try{body = JSON.parse(body); }catch(e){}
+			callback(stat, body, response);
+		};
+		delete options.date;
+		options.status = status;
+		options.method = method;
+		options.timer = setTimeout(function(){
+				gv.connect(method,options,newCallback);
+		},delay);
+		gv.schedule[eventTimeString] = options;
+		return status; // successfully scheduled an event: 0: no errors, 10: overwrote another scheduled event
 	}
 	
-	var post_data='phoneNumber='+number+'&id='+'&text='+text;
-	gvClient.request('POST',gvClient.auth_voice,'/voice/sms/send/',post_data,function(body, response){
-		try{body = JSON.parse(body)}catch(e){}
-		callback(null, body, response);
-	});
+	switch(method){
+		case 'sms':
+			if(isArray(options.outgoingNumber)){  options.outgoingNumber = outgoingNumber.join(',');}
+			var post_data = {
+				phoneNumber: options.outgoingNumber,
+				id: '',
+				text: options.text || ' '
+			};
+			gv.request('POST',gv.auth_voice,'/voice/sms/send/',post_data,function(body, response){
+				try{body = JSON.parse(body)}catch(e){}
+				status = response.statusCode != 200 ? 600 : status;
+				callback(status, body, response);
+			});
+			
+			break;
+		case 'call':
+			if(isArray(options.outgoingNumber)){  options.outgoingNumber = options.outgoingNumber[0];}
+			var post_data = {
+				outgoingNumber: options.outgoingNumber,
+				forwardingNumber: options.forwardingNumber,
+				phoneType: options.phoneType,
+				remember: '0',
+				subscriberNumber: 'undefined'
+			};
+
+			gv.request('POST',gv.auth_voice,'/voice/call/connect/',post_data,function(body, response){
+				try{body = JSON.parse(body)}catch(e){}
+				status = response.statusCode != 200 ? 600 : status;
+				callback(status, body, response);
+			});
+			break;
+		case 'cancel':
+			gv.request('POST',gv.auth_voice,'/voice/call/cancel/',{outgoingNumber:'undefined',forwardingNumber:'undefined',cancelType:'C2C'},function(body,response){
+				try{body = JSON.parse(body); }catch(e){}
+				status = response.statusCode != 200 ? 600 : status;
+				callback(status, body, response);
+			})
+			break;
+	}
 };
 
-exports.Client.prototype.connect=function(options,callback){
-	var outgoingNumber = '',
-		callback = callback || noop,
-		method = options.method || null,
-		outgoingNumber = options.outgoingNumber || null;
-		
-	if(!method){	callback(1); return;}	
-	if(!CONNECTION_METHODS[method])	{	callback(2); return;}
-	if(!outgoingNumber)	{	callback(3); return;}
-	
-	CONNECTION_METHODS[method](this, options,callback);
-};
 
-
-exports.Client.prototype.unscheduler=function(date){
+exports.Client.prototype.unschedule=function(date){
 	var gv = this;
-	var eventTime = isArray(date) ? new Date(date[0], date[1]-1, date[2], date[3], date[4]).toISOString() : ( isDate(date) ? date.toISOString() : (isString(date) ? date : null) );
-	var evt = gv.schedule[eventTime] || null;
-	
-	if(evt){
-		clearTimeout(evt.timer);
-		delete gv.schedule[eventTime];
+	if(isString(date) && date.trim() == 'all'){
+		for (evt in gv.schedule){
+			gv.unscheduler(evt);
+		}
 		return true;
 	}else{
-		return false;
+		var eventTime = (isArray(date) && date[0] ) ? new Date(date[0], date[1]-1 || null, date[2] || null, date[3] || null, date[4] || null, date[5] || null, date[6] || null).toISOString() : ( isDate(date) ? date.toISOString() : (isString(date) ? date : null) );
+		if(gv.schedule[eventTime]){
+			clearTimeout(gv.schedule[eventTime].timer);
+			delete gv.schedule[eventTime];
+			return true;
+		}else{
+			return false;
+		}
 	}
 };
 
-exports.Client.prototype.unscheduleAll=function(callback){
-	var gv = this;
-	for (evt in gv.schedule){
-		gv.unscheduler(evt);
-		console.log(evt);
-	}
-	if(callback){	callback(); }
-};
-
-exports.Client.prototype.scheduler=function(type,date){
-	var gv = this;
-	var currentTime = new Date(),
-		eventTime = isArray(date) ? new Date(date[0], date[1]-1, date[2], date[3], date[4]) : ( isDate(date) ? date : currentTime ),
-		eventTimeString = eventTime.toISOString(),
-		delay = eventTime-currentTime;
-	
-	if((type!='call' && type!='sms') || eventTime<currentTime){return;}
-	if(gv.schedule[eventTimeString]){
-		gv.unscheduler(date)
-	}
-	var eventCallback = type=='call' ? (arguments[5] || null) : (arguments[4] || null);
-	var scheduleCallback = type=='call' ? (arguments[6] || null) : (arguments[5] || null);
-	var newCallback= function(body, response){
-		delete gv.schedule[eventTimeString];
-		if(eventCallback){eventCallback(body, response);}
-	}
-	
-	switch(type){
-		case 'call':
-			var outgoingNum = arguments[2],
-				forwardingNum = arguments[3],
-				phoneType = arguments[4],
-				timerID = setTimeout(function(){
-					gv.placeCall(outgoingNum,forwardingNum,phoneType,newCallback);
-				},delay);
-			gv.schedule[eventTimeString]={
-				type:'call',
-				outgoingNumber: outgoingNum,
-				forwardingNumber: forwardingNum,
-				phoneType: phoneType,
-				timer:timerID
-			};
-			break;
-		case 'sms':
-			var outgoingNum = arguments[2],
-				text = arguments[3],
-				timerID = setTimeout(function(){
-					gv.sendSMS(number,text,newCallback);
-				},delay);
-			gv.schedule[eventTimeString]={
-				type:'sms',
-				outgoingNumber: outgoingNum,
-				text:text,
-				timer:timerID
-			};
-			break;
-		default:
-			break;
-	};
-	if(scheduleCallback){	scheduleCallback(eventTimeString, gv.schedule[eventTimeString]);	}
-};
-
-exports.Client.prototype.scheduleCallsFromCalendar=function(calendarLabel,forwardingNum,phoneType,eventCallback,scheduleCallback){
+//TODO: fix this to work with the new scheduling method
+exports.Client.prototype.scheduleCallsFromCalendar=function(calendarLabel,forwardingNum,phoneType,eventCallback,scheduleCallback, completedScheduling){
 	var gv = this;
 	gv.request('GET',gv.auth_calendar,'/calendar/feeds/default/private/full?q='+calendarLabel+'&alt=jsonc','',function(body){
 		var items=JSON.parse(body).data.items;
@@ -281,42 +286,58 @@ exports.Client.prototype.scheduleCallsFromCalendar=function(calendarLabel,forwar
 };
 
 exports.Client.prototype.getURLs= {
-	history: 	'/voice/inbox/recent/all/',
-	inbox: 		'/voice/inbox/recent/inbox/',
-	spam: 		'/voice/inbox/recent/spam/',
-	trash: 		'/voice/inbox/recent/trash/',
-	starred: 	'/voice/inbox/recent/starred/',
-	sms: 		'/voice/inbox/recent/sms/',
-	voicemail: 	'/voice/inbox/recent/voicemail/',
-	placed: 	'/voice/inbox/recent/placed/',
-	missed: 	'/voice/inbox/recent/missed/',
-	received: 	'/voice/inbox/recent/received/',
-	recorded: 	'/voice/inbox/recent/recorded/',
-	search: 	'/voice/inbox/search/'
+	history: 	{url: '/voice/inbox/recent/all/',			json:false},
+	inbox: 		{url: '/voice/inbox/recent/inbox/',			json:false},
+	spam: 		{url: '/voice/inbox/recent/spam/'			json:false},
+	trash: 		{url: '/voice/inbox/recent/trash/',			json:false},
+	starred: 	{url: '/voice/inbox/recent/starred/',		json:false},
+	sms: 		{url: '/voice/inbox/recent/sms/', 			json:false},
+	voicemail: 	{url: '/voice/inbox/recent/voicemail/', 	json:false},
+	placed: 	{url: '/voice/inbox/recent/placed/',		json:false},
+	missed: 	{url: '/voice/inbox/recent/missed/',		json:false},
+	received: 	{url: '/voice/inbox/recent/received/',		json:false},
+	recorded: 	{url: '/voice/inbox/recent/recorded/',		json:false},
+	search: 	{url: '/voice/inbox/search/',				json:false}
 };
 
-exports.Client.prototype.get=function(type, limit, callback){
+//TODO: implement these functions:
+exports.Client.prototype.settingsURLs = {
+	billing: 		{url: '/voice/settings/tab/billing/',		json: false},
+	billingCredit: 	{url: '/voice/settings/billingCredit/', 	json: false},
+	phones: 		{url: '/voice/settings/tab/phones/', 		json: true},
+	getDND: 		{url: '/voice/settings/getDoNotDisturb/', 	json: true}
+};
+
+exports.Client.prototype.get=function(options, callback){
 	var gv = this;
-	var callback = callback || noop;
-	limit = limit || -1;
+	var callback = callback || noop,
+		post_data = {};
+	var limit = (options.limit || options.limit == 0) ? options.limit : -1;
 	
-	if(isObject(type)){
-		var searchQuery = type.query;
-		type = 'search';
+	if(options.query){
+		post_data.q = options.query;
+		var type = 'search';
+	}else if(isObject(options)){
+		var type = options.type;
+	}else if(options == 'counts'){
+		var type = 'inbox';
+		limit = 0;
+	}else{
+		var type = options;
 	}
-	if(!gv.getURLs[type] ){ callback('improper GET type'); return;}
-	if(limit<-1){ callback('limit cannot be < -1'); return;}
 	
-	var path = type=='search' ? (gv.getURLs[type]+'?q='+searchQuery) : gv.getURLs[type];
+	if(!gv.getURLs[type] ){ callback(15); return 15;}
+	var path = gv.getURLs[type].url;
+	if(limit<-1){ callback(16); return 16;}
+	
 	var response  = {
 		messages:[],
 		pageCount:1,
 		totalSize:-1
 	};
-	var page;
 	var parser = new xml2js.Parser();
 	
-	function call_cb(err){	callback(err,response.messages);	}
+	function call_cb(status){	callback(status,response.messages);	}
 	
 	function enough(){
 		if(response.messages.length == response.totalSize || (limit!=-1 && response.messages.length >= limit) ){
@@ -332,8 +353,8 @@ exports.Client.prototype.get=function(type, limit, callback){
 			response.totalSize = json.totalSize;
 			response.resultsPerPage = json.resultsPerPage;
 			gv.unreadCounts = json.unreadCounts;
-		}catch(err){ call_cb(err); return; }
-		if(enough()){ call_cb(null); return; }
+		}catch(err){ call_cb(20); return; }
+		if(enough()){ call_cb(0); return; }
 		
 		var document=jsdom.jsdom(result.html);
 		for(var msgID in json.messages){
@@ -344,69 +365,83 @@ exports.Client.prototype.get=function(type, limit, callback){
 				currentMessage.thread = thread;
 			}
 			response.messages.push(currentMessage);
-			if(enough()){ call_cb(null); return; }
+			if(enough()){ call_cb(0); return; }
 		}
 		
 		if(enough()){ 
-			call_cb(null); 
+			call_cb(0); 
 			return;
 		}else{
 			response.pageCount++;
-			page = type=='search' ? ('&page=p'+response.pageCount) : ('?page=p'+response.pageCount);
-			gv.request('GET',gv.auth_voice,path+page,'',function(body){
+			post_data.page = 'p'+response.pageCount;
+			gv.request('GET',gv.auth_voice,path,post_data,function(body){
 				parser.parseString(body);	
 			});
 		}
 	}
 	
 	parser.addListener('end', parse);
-	gv.request('GET',gv.auth_voice,path,'',function(body){
+	gv.request('GET',gv.auth_voice,path,post_data,function(body){
 		parser.parseString(body);
 	});
 };
 
 exports.Client.prototype.setURLs={
-	markRead: 		{url: '/voice/inbox/mark/', 					post: 'read=1'},
-	markUnread: 	{url: '/voice/inbox/mark/', 					post: 'read=0'},
-	toggleTrash: 	{url: '/voice/inbox/deleteMessages/',			post: 'trash=1'},
-	deleteForever: 	{url: '/voice/inbox/deleteForeverMessages/',	post: 'trash=1'},
-	archive: 		{url: '/voice/inbox/archiveMessages/', 			post: 'archive=1'},
-	unarchive: 		{url: '/voice/inbox/archiveMessages/', 			post: 'archive=0'},
-	star: 			{url: '/voice/inbox/star/', 					post: 'star=1'},
-	unstar: 		{url: '/voice/inbox/star/',						post: 'star=0'},
+	markRead: 		{url: '/voice/inbox/mark/', 					post: {read:'1'}},
+	markUnread: 	{url: '/voice/inbox/mark/', 					post: {read:'0'}},
+	toggleTrash: 	{url: '/voice/inbox/deleteMessages/',			post: {trash:'1'}},
+	deleteForever: 	{url: '/voice/inbox/deleteForeverMessages/',	post: {trash:'1'}},
+	archive: 		{url: '/voice/inbox/archiveMessages/', 			post: {archive:'1'}},
+	unarchive: 		{url: '/voice/inbox/archiveMessages/', 			post: {archive:'0'}},
+	star: 			{url: '/voice/inbox/star/', 					post: {star:'1'}},
+	unstar: 		{url: '/voice/inbox/star/',						post: {star:'0'}},
+	block: 			{url: '/voice/inbox/block/', 					post: {blocked:'0'}},
+	unblock: 		{url: '/voice/inbox/block/', 					post: {blocked:'1'}},
+	savenote: 		{url: '/voice/inbox/savenote/'},
+	forward: 		{url: '/voice/inbox/reply/'}
 };
 
-exports.Client.prototype.set=function(type, msgIDs,callback){
+exports.Client.prototype.set=function(options, msgIDs,callback){
 	var gv = this;
 	var callback = callback || noop;
-	if(!gv.setURLs[type] ){ callback('improper GET type'); return;}
 	
-	var setURL = gv.setURLs[type],
-		post_data = '';
-		
-	if(isString(msgIDs)){
-		post_data+='messages='+msgIDs;
-	}else if(isArray(msgIDs)){
-		for(var i=0; i<msgIDs.length; i++){
-			post_data+='messages='+msgIDs[i]+'&'
+	if(isObject(options)){
+		if(options.note){
+			var post_data = {
+				id: isArray(msgIDs) ? msgIDs[0] : msgIDs,
+				note: options.note || ' '
+			};
+			var options = 'savenote';
+		}else if(options.forward){
+			var post_data = {
+				id: isArray(msgIDs) ? msgIDs[0] : msgIDs,
+				toAddress: isArray(options.forward) ? options.forward.join(',') : options.forward,
+				subject: options.subject || '',
+				body: options.body || '',
+				includeLink: options.link ? '1' : '0'
+			}
+			var options = 'forward';
+		}else{
+			return;
 		}
 	}else{
-		return;
+		var post_data = {
+			messages: isArray(msgIDs) ? msgIDs.join('&messages=') : msgIDs
+		}		
 	}
-
-	post_data += setURL.post;
-	this.request('POST',this.auth_voice,setURL.url,post_data,function(body, response){
-		callback(JSON.parse(body));
+	
+	if(!gv.setURLs[options] ){ callback(15); return;}
+	for(variable in gv.setURLs[options].post){
+		post_data[variable] = gv.setURLs[options].post[variable];
+	}
+	var path = gv.setURLs[options].url;
+	gv.request('POST',gv.auth_voice,path,post_data,function(body, response){
+		var status = response.statusCode != 200 ? 600 : 0;
+		callback(status,JSON.parse(body),response);
 	});
 };
 
-//TODO: implement these functions:
-exports.Client.prototype.settingsURLs = {
-	billing: 		{url: '/voice/settings/tab/billing/',		json: false},
-	billingCredit: 	{url: '/voice/settings/billingCredit/', 	json: false},
-	phones: 		{url: '/voice/settings/tab/phones/', 		json: true},
-	getDND: 		{url: '/voice/settings/getDoNotDisturb/', 	json: true}
-};
+
 
 
 exports.Client.prototype.parseSMS=function(param,currentMsg){

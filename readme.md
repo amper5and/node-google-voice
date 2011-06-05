@@ -264,7 +264,7 @@ To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. T
 ### Retrieve messages 
 All data requests are of the following form: `voiceClient.get(request,limit,callback) ` where:
 
-* `request` (String or Object) is:
+* `request` (String or Object) is either:
 	* one of the following self-explanatory Strings:
 	
 	```javascript
@@ -279,12 +279,14 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 		'missed'
 		'received'
 		'recorded'
-	```	
-	or
+	```		
 	
-	* a query object: `{query: searchString}`
+	* or a query object: 
+	```javascript
+	{query: 'searchString'}
+	```
 	
-	This last form retrieves messages that match the given `searchString` (String) in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from in the Google Voice web interface.
+	This last form retrieves messages that match the given `searchString` in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from the Google Voice web interface.
 
 * `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
 * `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
@@ -325,7 +327,7 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
 #### Example:  retrieve and display the last missed call:
 
 ```javascript
-	voiceClient.get('missed',1,function(err,msgs){
+	voiceClient.get('missed',function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
 	});
@@ -369,7 +371,7 @@ SMS messages are grouped under one message ID by Google Voice. In order to prese
 #### Example:  find all texts/calls from 'mom' or that mention 'mom':
 
 ```javascript
-	voiceClient.get({query: 'mom'},-1,function(err,msgs){
+	voiceClient.get({search: 'mom'},-1,function(err,msgs){
 		if(err){ console.log('error on request: '+err); return; }
 		console.log(msgs.length + ' messages found.');
 	});

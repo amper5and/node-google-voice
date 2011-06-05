@@ -140,7 +140,6 @@ exports.Client.prototype.unscheduleAll=function(callback){
 	var gv = this;
 	for (evt in gv.schedule){
 		gv.unscheduler(evt);
-		console.log(evt);
 	}
 	if(callback){	callback(); }
 };
