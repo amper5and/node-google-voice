@@ -387,8 +387,8 @@ exports.Client.prototype.get=function(options, callback){
 };
 
 exports.Client.prototype.setURLs={
-	markRead: 		{url: '/voice/inbox/mark/', 					post: {read:'1'}},
-	markUnread: 	{url: '/voice/inbox/mark/', 					post: {read:'0'}},
+	read: 			{url: '/voice/inbox/mark/', 					post: {read:'1'}},
+	unread: 		{url: '/voice/inbox/mark/', 					post: {read:'0'}},
 	toggleTrash: 	{url: '/voice/inbox/deleteMessages/',			post: {trash:'1'}},
 	deleteForever: 	{url: '/voice/inbox/deleteForeverMessages/',	post: {trash:'1'}},
 	archive: 		{url: '/voice/inbox/archiveMessages/', 			post: {archive:'1'}},
@@ -397,6 +397,8 @@ exports.Client.prototype.setURLs={
 	unstar: 		{url: '/voice/inbox/star/',						post: {star:'0'}},
 	block: 			{url: '/voice/inbox/block/', 					post: {blocked:'0'}},
 	unblock: 		{url: '/voice/inbox/block/', 					post: {blocked:'1'}},
+	spam: 			{url: '/voice/inbox/spam/',						post: {spam:'1'}},
+	unspam: 		{url: '/voice/inbox/spam/',						post: {spam:'0'}},
 	savenote: 		{url: '/voice/inbox/savenote/'},
 	forward: 		{url: '/voice/inbox/reply/'}
 };
@@ -404,6 +406,7 @@ exports.Client.prototype.setURLs={
 exports.Client.prototype.set=function(options, msgIDs,callback){
 	var gv = this;
 	var callback = callback || noop;
+	var type = options;
 	
 	if(isObject(options)){
 		if(options.note){
@@ -411,7 +414,7 @@ exports.Client.prototype.set=function(options, msgIDs,callback){
 				id: isArray(msgIDs) ? msgIDs[0] : msgIDs,
 				note: options.note
 			};
-			var options = 'savenote';
+			type = 'savenote';
 		}else if(options.forward){
 			var post_data = {
 				id: isArray(msgIDs) ? msgIDs[0] : msgIDs,
@@ -420,9 +423,9 @@ exports.Client.prototype.set=function(options, msgIDs,callback){
 				body: options.body || '',
 				includeLink: options.link ? '1' : '0'
 			}
-			var options = 'forward';
+			type = 'forward';
 		}else{
-			return;
+			callback(15); return 15;
 		}
 	}else{
 		var post_data = {
@@ -430,11 +433,11 @@ exports.Client.prototype.set=function(options, msgIDs,callback){
 		}		
 	}
 	
-	if(!gv.setURLs[options] ){ callback(15); return;}
-	for(variable in gv.setURLs[options].post){
-		post_data[variable] = gv.setURLs[options].post[variable];
+	if(!gv.setURLs[type] ){ callback(15); return;}
+	for(variable in gv.setURLs[type].post){
+		post_data[variable] = gv.setURLs[type].post[variable];
 	}
-	var path = gv.setURLs[options].url;
+	var path = gv.setURLs[type].url;
 	gv.request('POST',gv.auth_voice,path,post_data,function(body, response){
 		var status = response.statusCode != 200 ? 600 : 0;
 		callback(status,JSON.parse(body),response);
