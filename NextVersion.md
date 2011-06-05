@@ -1,4 +1,4 @@
-# Some thoughts on the next version of node-google-voice
+# Some thoughts on the next update to node-google-voice
 Here, I'm including some ideas and thoughts about what I want to change/add/improve in the next update:
 
 ## A common call/text method
@@ -68,3 +68,9 @@ voiceClient.get('sms',1,function(err,msgs){
         }
     });
 ```
+
+## Connect to google talk
+Add documentation explaining how to connect the call to Google Talk, or make it ring in Gmail. Basically, the procedure is simple:
+
+* For the `forwardingNumber`, use your Google account: username@gmail.com
+* For the `phoneType`, use 9
