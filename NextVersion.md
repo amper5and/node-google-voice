@@ -74,3 +74,6 @@ Add documentation explaining how to connect the call to Google Talk, or make it 
 
 * For the `forwardingNumber`, use your Google account: username@gmail.com
 * For the `phoneType`, use 9
+
+## Provide a browser-side implementation
+If and when I figure out Google Voice authentication with Javascript in the browser, I will port this to a browser-side implementation. This should really require changing only the `request()` function to use XHR. If you know how authentication with Google can be done through JS, please let me know.
