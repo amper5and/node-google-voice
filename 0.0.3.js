@@ -154,14 +154,14 @@ exports.Client.prototype.STATUS_CODES = {
 
 var CONNECT_METHODS=['sms','call','cancel'];
 
-function validateConnection( method,options,callback){
-	if(!method){ callback(1); return 1;}
-	if(!~CONNECT_METHODS.indexOf(method))	{ callback(2); return 2;}
+function validateConnection( method,options){
+	if(!method){ return 1;}
+	if(!~CONNECT_METHODS.indexOf(method))	{ return 2;}
 	var outgoingNumber = method!='cancel' ? (options.outgoingNumber || null) : 'undefined';
-	if(!outgoingNumber){ callback(3); return 3};
+	if(!outgoingNumber){ return 3; }
 	if(method == 'call'){
-		if(!options.forwardingNumber){ callback(5); return 5; }
-		if(!options.phoneType){ callback(6); return 6; }
+		if(!options.forwardingNumber){ return 5; }
+		if(!options.phoneType){  return 6; }
 	}
 	return 0;
 	
@@ -170,8 +170,12 @@ exports.Client.prototype.connect=function(method,options,callback){
 	var gv = this;
 	callback = callback || ( isFunction(options) ? options : noop);
 	
-	var check = validateConnection(method,options,callback);
-	var status = check == 0 ? (options.status || 0) : check;
+	var check = validateConnection(method,options);
+	if(check!=0){
+		callback(check); return check;
+	}else{
+		var status = check;
+	}
 	
 	if(options.date){
 		var date = options.date,
