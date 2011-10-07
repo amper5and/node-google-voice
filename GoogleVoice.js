@@ -84,10 +84,15 @@ exports.Client.prototype.request = function(method,auth,path,post_data,callback)
 			response.on("data", function(chunk) {
 					response.chunks.push(chunk);
 			});
-			response.on("end", function() {
+			var ran = false;
+			var done = function() {
+				if(ran)return;
+				ran = true;
 				var body = response.chunks.join('');
 				callback(body,response);
-			});
+			};
+			response.on("close",done);
+			response.on("end", done);
 		}
 	});
 	req.write(post_data);
