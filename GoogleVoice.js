@@ -91,7 +91,7 @@ exports.Client.prototype.request = function(method,auth,path,post_data,callback)
 				var body = response.chunks.join('');
 				callback(body,response);
 			};
-			response.on("done",done);
+			response.on("close",done);
 			response.on("end", done);
 		}
 	});
