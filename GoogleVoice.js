@@ -223,6 +223,7 @@ exports.Client.prototype.scheduleCallsFromCalendar=function(calendarLabel,forwar
 exports.Client.prototype.getURLs= {
 	history: 	'/voice/inbox/recent/all/',
 	inbox: 		'/voice/inbox/recent/inbox/',
+	unread: 	'/voice/inbox/recent/unread/',
 	spam: 		'/voice/inbox/recent/spam/',
 	trash: 		'/voice/inbox/recent/trash/',
 	starred: 	'/voice/inbox/recent/starred/',
