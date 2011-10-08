@@ -39,7 +39,7 @@ where `options` is an Object with the following properties:
 * `rnr_se` (String)
     * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice web front-end and running the following javascript bookmarklet in the browser window:
 	
-		` javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se); `
+		` javascript:alert('Your rnr_se is:\n\n'+escape(_gcData._rnr_se)); `
     
 	* You only have to do this once, because the `_rnr_se` doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that your `_rnr_se` hasn't changed.)
 
