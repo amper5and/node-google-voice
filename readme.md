@@ -1,275 +1,107 @@
 ## What is it?
-It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. It allows you to 
+It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
+It currently allows you to:
 
 * place calls
-* send SMS's
-* schedule calls and SMS's from inside node or with Google Calendar
-* access & manipulate GV data
+* send SMSs
+* access and manipulate GV messages
+* access GV settings
 
-## Installation
-First install node-google-voice in the usual manner for node:
-	
-	npm install google-voice
+## What's new in 0.1 ?
 
-See [the npm page](https://github.com/isaacs/npm) for information on installing npm, the Node Package Manager.
+* new common, consistent methods for calling/texting and getting/setting messages
+* voicemail download
+* new methods for getting Google Voice settings
+* extra get and set methods, such as 'unread', 'saveNote'/'deleteNote', 'saveTranscript'/'restoreTranscript'
+* faster message requests, due to internal parallel downloading of data
 
-### Dependencies
+(Note that the call scheduler has been removed in 0.1.)
+
+## Dependencies
 node-google-voice depends on:
 
-* [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin) - used for authentication for Google Voice and Google Calendar
-* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js/) - used for extracting JSON & HTML data from Google Voice XML responses
-* [jsdom](https://github.com/tmpvar/jsdom) - used for extracting SMS messages from Google Voice HTML responses
+* [node.js](http://nodejs.org)
+* [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin) - used for authentication to the Google Voice service
+* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js) - used for extracting JSON & HTML data from Google Voice XML responses
+* [jsdom](https://github.com/tmpvar/jsdom) - for extracting SMS threads from GV data
+* [request](https://github.com/mikeal/request) - for all http requests
 
 [npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing these modules (and *their* dependencies) independently.
 
 ### Node.js version
-node-google-voice has only been tested in Node 0.4.7. Theoretically, it should work fine in older versions, as long as:
+node-google-voice has been tested with Node 0.6.7. YMMV with other versions. 
 
-* those versions are supported by the dependencies and 
-* the particular Node version's `https` is not much different from v0.4.7's. This is the only major core Node module used by node-google-voice.
+## Installation
+Install node-google-voice via npm:
 
-## Instantiate a Google Voice client ( new GV.Client(options) )
+	npm install google-voice
+	
+(In more recent versions of Node, npm is included. See [the npm page](https://github.com/isaacs/npm) for information on installing npm with older versions of Node.)
 
-Google Voice client instances are made by calling `voiceClient = new require('google-voice').Client(options)` where
 
+## Instantiate a Google Voice client: new GV.Client(options)
+
+Google Voice client instances are created in the following manner
+
+	var GV = require('google-voice');
+	var voiceClient = new GV.Client(options);
+	
 where `options` is an Object with the following properties:
 
-* `email` (String) - your Google Voice login email
-* `password` (String) - your Google Voice password
-* `rnr_se` (String)
-    * This last item is a unique identifier for each Google Voice account. You can get it by logging into Google Voice web front-end and running the following javascript bookmarklet in the browser window:
+* `email` (String, required) - your Google Voice login email
+* `password` (String, required) - your Google Voice password
+* `rnr_se` (String, required) - the unique identifier associated with your GV account
+	* The `rnr_se` is some kind of ID created by Google for your Google Voice account. At this time, it can be obtained by logging into the Google Voice web front-end and running the following javascript snippet in the browser window:
+		
+		javascript:alert(_gcData._rnr_se);
 	
-		` javascript:alert('Your rnr_se is:\n\n'+_gcData._rnr_se); `
-    
-	* You only have to do this once, because the `_rnr_se` doesn't change. (...at least it hasn't changed for me since I have become aware of it. If something doesn't work in your GV.Client, first check that your `_rnr_se` hasn't changed.)
-
-#### Example:  Create a GV client instance
-```javascript
-	var GV = require('google-voice');
-	var voiceClient = new GV.Client({
-		email: 'username@gmail.com',
-		password: 'password',
-		rnr_se: '_rnr_se from Google Voice web page'
-	});
-```
-## Preliminaries
-In the examples below:
-
-* `textMessage` (String) is the SMS to send
-* `outgoingNumber` (String) is the number to which the forwardingNumber will be connected to or the number(s) to which an SMS will be sent. For SMS's, outgoingNumber can be an Array of Strings, to send the SMS to multiple phone numbers.
-* `forwardingNumber` (String) is one of the forwarding numbers set up in your GV account. This is the number that will ring on YOUR end.
-* `phoneType` (Integer) is the phone type of the forwardingNumber set up in your GV account. It can be one of the following values:
-    * 1 - Home
-    * 2 - Mobile
-    * 3 - Work
-    * 7 - Gizmo		
-* `body` is either:
-    * an Object formed from the JSON response from Google Voice (typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`
-    * a String containing the HTML response from Google Voice (for cases when the body of the response doesn't contain JSON)
-
-	The body object/string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
-* `response` (http.ClientResponse) is an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right!) and act on it. 
-
-## Calling and Texting ( GVClient.placeCall() & GVClient.sendSMS() )
-#### Example:  Place a call:
-```javascript
-	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType,function(body,response){
-		console.log(body);
-	});
-```	
-
-or
-
-```javascript	
-	voiceClient.placeCall(outgoingNumber,forwardingNumber,phoneType);
-```
-
-#### Example:  Send an SMS to one number:
-
-```javascript
-	voiceClient.sendSMS(outgoingNumber,textMessage,function(body,response){
-		console.log(body);
-	});
-```	
-
-or
-
-```javascript
-	voiceClient.sendSMS(outgoingNumber,textMessage);
-```
-
-#### Example:  Send an SMS to multiple numbers:
-
-```javascript
-	voiceClient.sendSMS([outgoingNumber1,outgoingNumber2],textMessage,function(body,response){
-		console.log(body);
-	});
-```
-
-Note that the `callbacks` are optional.
+	* You only have to get your rnr_se once, because it doesn't appear to change. However, if something does stop working in node-google-voice, first check that your `rnr_se` hasn't changed.
 
 
-## Schedule calls and SMS's
 
-### The schedule ( GVClient.schedule )
-Calls and SMSs can be scheduled to take place in the future. The GV.Client instance contains a `schedule` object that is populated with event details when events are scheduled successfully. After the events execute (i.e a call is made or an SMS is sent), that event will be removed from the schedule object. 
-The name of each event object in the `schedule` object is the ISO String representation of the Date of the event (using ` Date.toISOString() `). So, for the example events below, set to take place on 12/25/2011 at 8:00 AM,  `voiceClient.schedule` will contain the object `voiceClient.schedule['2011-12-25T13:00:00.000Z']` .
 
-Each scheduled event ( `voiceClient.schedule[ISOdateString]` ) will contain at least the following properties:
+## Calling and Texting: GV.Client.connect(method, options, callback)
+This is the common method for texting, calling, and canceling calls. The parameters are:
 
-* `type` (String): will be either `'call'` or `'sms'`, indicating the event type
-* `timer` (timeoutId): the [timer object](http://nodejs.org/docs/v0.4.7/api/timers.html) created by the `setTimeout()` that schedules the event
+* `method` (String, required): one of 'call', 'sms', or 'cancel'
+* `options`  (Object, required/optional): different properties are required, depending on the `method` used. See below.
+* `callback`  (Function(error, response, body), optional):
+	* `error` (Number) - See Status Codes below.
+	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
+	* `body` (String): the response from Google Voice for the request. It is JSON data, and is typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`. No attempts to parse these responses is made, because string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
 
-The other properties of `voiceClient.schedule[ISOdateString]` will be event-specific items such as `outgoingNumber`, `forwardingNumber`, `text`, etc...
+### Options parameters depending on `method`
 
-### Scheduling events ( GVClient.scheduler() )
-Events are scheduled with `voiceClient.scheduler(type,date,...,eventCallback,scheduleCallback)` where
+#### `call`
+* `outgoingNumber` (String, required) - the number you wish to be connected TO
+* `forwardingNumber` (String, required) - the phone on your GV account that you wish to connect WITH
+* `phoneType` (Number, required) - the phoneType of the `forwardingNumber`. Options are:
+	* 1 - Home
+	* 2 - Mobile
+	* 3 - Work
+	* 7 - Gizmo (may not work, as Google has acquired Gizmo)
+	* 9 - Google Talk
 
-* `type` (String) is either `'sms'` or `'call'`
-* `date` (Array or Date) is the time of the event. Events can be scheduled using an array of the form [YEAR,MONTH,DAY,HOUR (24-hr format),MINUTE] or with a Date object.
-* `...` represents the normal variables associated with the event (such as `outgoingNumber`, `textMessage`, etc...see above)
-* `eventCallback` (Function) is of the form `function(body,response), where `body` and `response` are the same Objects as described earlier in the Preliminaries section. This callback is called AT THE TIME OF THE EVENT.
-* `scheduleCallback` (Function) is of the form `function(schedulingID, scheduledEvent)`. This callback is called after the event has been successfully SCHEDULED. The parameters are: 
-    * `schedulingID` (String) is the ISO string representation of the date of the event. 
-    * `sheduledEvent` (Object) is the event object from `voiceClient.schedule` corresponding to the scheduled event.
-	
-NOTE: If the date & time of an event is before the current system time, the event will not be scheduled. The scheduling request will fail silently. (I plan to change this soon so that the `scheduleCallback` will be notified of a failed scheduling request.)
+(Note that information about the phones and phoneTypes on your GV account can be obtained from the `client.settings.phones`, after fetching the settings. See `GV.Client.getSettings` below.)
 
-NOTE: Only one event can be scheduled for a particular time, regardless of event type. If the date & time of an event you are trying to add to the schedule matches the date & time of another event already on the schedule, the new event will silently replace the old event. The old event will be silently unscheduled. (TODO: provide a notification to `scheduleCallback` about the schedule change.)
+#### `sms`
+* `outgoingNumber` (String or Array of Strings, required)
+* `text` (String, optional)
 
-#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
-```javascript
-	voiceClient.scheduler('call',[2011,12,25,8,00],outgoingNumber,forwardingNumber,phoneType,
-		function(body,response){
-			console.log(body);
-		},
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+new Date(Date.parse(schedulingID)));
-		});
-```
-#### Example:  Schedule a call for 12/25/2011 at 8:00 AM using a Date object to represent the date:
-```javascript
-	voiceClient.scheduler('call',new Date(2011,11,25,8,00),outgoingNumber,forwardingNumber,phoneType,
-		function(body,response){
-			console.log(body);
-		});
-```	
-#### Example:  Schedule an sms to be sent on 12/25/2011 at 8:00 AM using an array of the form [YEAR,MONTH,DAY,HOUR,MINUTE] to represent the date:
-```javascript
-	voiceClient.scheduler('sms',[2011,12,25,8,00],outgoingNumber,'Merry Christmas!',null,
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
-		});
-```
-#### Example:  Schedule an sms to be sent on 12/25/2011 at 10:00 PM using a Date object to represent the date:
-```javascript
-	voiceClient.scheduler('sms',new Date(2011,11,25,22,00),outgoingNumber,'Hope you had a wonderful Christmas!');
-```
-Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
+#### `cancel`
+This method cancels the current outgoing call before it is connected. No options are required. `options` can be `null`, or the following form can be used: `GV.Client.connect('cancel',callback)`
 
-### Schedule calls from your Google Calendars ( GVClient.scheduleCallsFromCalendar() )
-Schedule calls from your Google Calendars with: `voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,eventCallback,scheduleCallback)` where
 
-* `callLabel` (String) is the string used in Calendar event title/details in the format `callLabel=outgoingNumber` where `outgoingNumber` is the number you will be connected to.
-* `forwardingNumber` (String) is the number on YOUR end that will ring
-* `phoneType` (Integer) is the phone type of `forwardingNumber` (see above)
-* `eventCallback` (Function(body,response)) is the callback called at the time of the event (see above)
-* `scheduleCallback` (Function(scheduleID,evt)) is the callback called when the event is scheduled (see above)
 
-This searches your Google Calendars for events with `callLabel` (String) in the event title or event description, and schedules calls for the `outgoingNumber` at that event time.
-The format in the event title/details should be: `callLabel=outgoingNumber`. Note the absence of spaces in that string. 
 
-For example, if `callLabel='GVCall'`, then the event title or description in Google Calendar can contain `GVCall=18005551212` to schedule a call to 18005551212.
+## Retrieving Google Voice Messages: GV.Client.get(type, options, callback)
+This is the common method for fetching Google Voice messages, whether they are texts, voicemails, missed calls, etc..
 
-NOTE: If the `callLabel` is found in both the event title and description, the one in the title will be used.
-
-Use case: Using this inside `setInterval()` is an easy way to periodically add new events to the schedule as they are added in Google Calendar.
-
-#### Example: Schedule calls from Google Calendar:
-
-```javascript
-	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
-		function(body,response){
-			console.log(body);
-		},
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
-		});
-```
-
-or
-
-```javascript
-	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,
-		function(body,response){
-			console.log(body);
-		});
-```	
-	
-or
-
-```javascript
-	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType,null,
-		function(schedulingID, evt){
-			console.log('scheduled '+evt.type+' to '+evt.outgoingNumber+' on '+ new Date(Date.parse(schedulingID)));
-		});
-```	
-	
-or
-
-```javascript
-	voiceClient.scheduleCallsFromCalendar(callLabel,forwardingNumber,phoneType);
-```
-
-Note that all of the above requests are valid: you can include both callbacks, just one of the callbacks, or no callbacks.
-
-### Unschedule individual scheduled events ( GVClient.unscheduler() )
-To remove one event from the schedule, call `voiceClient.unscheduler(date)` where `date` is the dateTime of the event and is one of the following types:
-
-* Array (in the format discussed above)
-* Date 
-* String (in the ISO format)
-
-`voiceClient.unscheduler(date)` returns `true` if an event was unscheduled, `false` if not (it may be `false` simply because no event was scheduled at that time).
-
-#### Example:  Unschedule whatever event is scheduled for 12/25/2011 at 8:00 AM:
-
-```javascript
-	voiceClient.unscheduler([2011,12,25,8,00]);
-```	
-
-or
-
-```javascript
-	voiceClient.unscheduler(new Date(2011,11,25,8,00));
-```
-
-or
-
-```javascript
-	voiceClient.unscheduler('2011-12-25T13:00:00.000Z');
-```
-
-### Unschedule all scheduled events ( GVClient.unscheduleAll() )
-To unschedule all scheduled events, use `voiceClient.unscheduleAll(callback)`. The `callback` is optional. This was added in `v0.0.2`.
-#### Example:  Unschedule all scheduled events:
-
-```javascript
-	voiceClient.unscheduleAll(function(){
-		console.log('The schedule has been cleared.');
-	})
-```
-
-## Retrieving GV Data ( GVClient.get() )
-### Retrieve messages 
-All data requests are of the following form: `voiceClient.get(request,limit,callback) ` where:
-
-* `request` (String or Object) is either:
-	* one of the following self-explanatory Strings:
-	
+* `type` (String, required): Corresponds to the standard Google Voice labels. Can be one of the following:
 	```javascript
-		'history'
+		'unread'
 		'inbox'
+		'all'
 		'spam'
 		'trash'
 		'starred'
@@ -279,164 +111,238 @@ All data requests are of the following form: `voiceClient.get(request,limit,call
 		'missed'
 		'received'
 		'recorded'
-	```		
-	
-	* or a query object: 
-	```javascript
-	{query: 'searchString'}
+		'search' // this method REQUIRES a `query` property in `options`
 	```
+* `options` (Object, required/null): REQUIRED when `type` is search. Optional otherwise, but must be set to `null`. Can have the following properties:
+	* `start` (Number, optional, default is `1`): the index of the first message. An 'OUT_OF_BOUND_LIMIT' error will occur if `start` is greater than the number of messages for the request.
+	* `limit` (Number, optional, default is variable): maximum number of messages to return. The default is whatever Google's `resultsPerPage` value is (at the time of this writing it's 10). Set this to `Infinity` to retrieve ALL messages pertaining to the request. 
+	* `query` (String, required for type=='search'): The search function is entirely implemented by Google, so the search results are the same as would be returned by searching from the Google Voice web interface.
+* `callback` (Function(error, response), required)
+	* `error` (Number): see Status Codes below.
+	* `response` (Object): has the following properties:
+		* `total` (Number): the total number of messages matching this request
+		* `messages` (Array): an array of Google Voice message objects, sorted by `startTime`. The properties of each message object are whatever Google Voice is supplying at the time of the request. A few properties are added by node-google-voice (indicated below). At the time of this writing, an example message looked like this:	
+			```javascript	
+				{ id: 'someStringIdentifier',
+				  phoneNumber: '+18005551212',
+				  displayNumber: '(800) 555-1212',
+				  startTime: '1305138033000',
+				  displayStartDateTime: '5/11/11 2:20 PM',
+				  displayStartTime: '2:20 PM',
+				  relativeStartTime: '3 weeks ago',
+				  note: 'custom note',
+				  isRead: true,
+				  isSpam: false,
+				  isTrash: false,
+				  star: false,
+				  labels: [ 'missed', 'all' ],
+				  type: 0,
+				  children: '' ,
+				  messageText: 'Hi. This is the message transcript',
+				}
+			```
+			
+			Note that the `length` of the Array may be equal to OR less than `options.limit`. It will be LESS, if there are less messages matching the request.
+			
+			Properties added by node-google-voice to some messages:
+			* `url` (String, only for voicemails): the url of the message audio
+			* `thread` (Array, only for texts): the conversation thread, containing Objects with the following properties
+				* `from` (String)
+				* `time` (String)
+				* `text` (String)
+
+## Updating unread counts: GV.Client.getCounts(callback)
+
+Every time `.get()` is used, the client's `unreadCounts` property is updated with the latest unread count for each label in Google Voice.
+There is also a `.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
+
+* callback (Function(error, counts)) where
+	* `error` (Number): see Status Codes below
+	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
 	
-	This last form retrieves messages that match the given `searchString` in some way. The search function is entirely implemented by Google Voice, so the search results are the same as would be returned by searching from the Google Voice web interface.
 
-* `limit` (Integer) limits the number of returned messages to a certain number, ordered by time. So `limit=1` will return the most recent message of the given request and `limit=10` will return the 10 most recent messages. If `limit = -1`, ALL messages will be returned (can be slow for very large message lists).
-* `callback` (Function) is of the form `function(error,messages)` where `messages` is an array of message objects. Each message object is formed from the JSON response from Google Voice; the format is therefore subject to change. At the time of this writing, an example message looked like this:
-	
-	```javascript	
-		{ id: 'someStringIdentifier',
-		  phoneNumber: '+18005551212',
-		  displayNumber: '(800) 555-1212',
-		  startTime: '1305138033000',
-		  displayStartDateTime: '5/11/11 2:20 PM',
-		  displayStartTime: '2:20 PM',
-		  relativeStartTime: '3 weeks ago',
-		  note: '',
-		  isRead: true,
-		  isSpam: false,
-		  isTrash: false,
-		  star: false,
-		  labels: [ 'missed', 'all' ],
-		  type: 0,
-		  children: '' 
-		}
-	```	
-	
-### SMS messages	
-SMS messages are grouped under one message ID by Google Voice. In order to present all text messages in an SMS thread, an extra processing step occurs for SMS messages which attaches two properties to the message object:
+## Downloading voicemails: GV.Client.download(id,callback), GV.Client.download(options,callback)
+These two methods allow you to download the audio recording of voicemails. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
-* `lastText` (String) is the most recent SMS in the thread
-* `thread` (Array) is the collection of text messages in the SMS thread. Each item in this Array is a DOM element (made with jsdom) that has three children, corresponding to the `time`, `from`, and `text` of the SMS. 
-   A convenience method is provided to extract this information from text message DOM elements:
-	
-		voiceClient.parseSMS(param,msgDomElement)
-	
-	This returns the requested parameter of the text message where
-    * `param` (String) is one of 'time', 'from', or 'text'
-    * `msgDomElement` is the DOM element from the thread Array
+* id (String): the unique message id of the voicemail
+* options (Object) with the following properties:
+	* id (String, required) - Unique voicemail message id
+	* file (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
+* callback (Function(error, httpResponse, body), optional)
+	* error (Number) - see Status Codes below
+	* httpResponse (Http.ClientResponse)
+	* body (Buffer) - the binary audio data
 
-### Data retrieval examples
-#### Example:  retrieve and display the last missed call:
+## Modifying Google Voice messages: GV.Client.set(type, options, callback)
+This is the common setter method that manipulates GV messages on the server. Arguments are:
 
-```javascript
-	voiceClient.get('missed',function(err,msgs){
-		if(err){ console.log('error on request: '+err); return; }
-		console.log('missed call from ' + msgs[0].phoneNumber + ' at ' + msgs[0].displayStartDateTime);
-	});
-```
-
-#### Example:  retrieve all SMS messages:
-
-```javascript
-	voiceClient.get('sms',-1,function(err,msgs){
-		if(err){ console.log('error on request: '+err); return; }
-		console.log(msgs.length + ' SMSs found.');
-	});
-```
-
-#### Example:  retrieve the 10 most recent items from the inbox:
-
-```javascript
-
-	voiceClient.get('inbox',10,function(err,msgs){
-		if(err){ console.log('error on request: '+err); return; }
-		for(var i=0; i<msgs.length; i++){
-			console.log(msgs[i]);
-		}
-	});
-```
-
-#### Example:  display the most recent SMS thread:
-
-```javascript
-
-	voiceClient.get('sms',1,function(err,msgs){
-		if(err){ console.log('error on request: '+err); return; }
-		console.log('latest SMS thread:');
-		for(var i=0;i<msgs[0].thread.length;i++){
-			var currentMsg = msgs[0].thread[i];
-			console.log(voiceClient.parseSMS('time',currentMsg)+' '+voiceClient.parseSMS('from',currentMsg)+voiceClient.parseSMS('text',currentMsg) );
-		}
-	});
-```
-
-#### Example:  find all texts/calls from 'mom' or that mention 'mom':
-
-```javascript
-	voiceClient.get({search: 'mom'},-1,function(err,msgs){
-		if(err){ console.log('error on request: '+err); return; }
-		console.log(msgs.length + ' messages found.');
-	});
-```
-
-## Unread counts ( GVClient.unreadCounts )
-Every time a `voiceClient.get()` request is made, the voice client's `unreadCounts` property is updated with the most current information from Google Voice. At the time of this writing, an example `voiceClient.unreadCounts` object looked like this:
-
-```javascript
-		{ all: 3,
-		  inbox: 3,
-		  missed: 0,
-		  placed: 0,
-		  received: 0,
-		  recorded: 0,
-		  sms: 1,
-		  starred: 0,
-		  trash: 4,
-		  unread: 3,
-		  voicemail: 2
-		}
-```
-
-## Manipulating GV Data ( GVClient.set() )
-All data manipulation requests are of the following form: `voiceClient.set(param,messageID,callback) ` where:
-
-* `param` (String) is one of the following Strings:
+* `type` (String, required)
 
 	```javascript
-		'markRead'
-		'markUnread'
-		'archive'
-		'unarchive'
-		'star'
-		'unstar'
-		'deleteForever'
-		'toggleTrash' //calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+		'read' 				// mark message(s) as read
+		'unread' 			// mark message(s) as unread
+		'archive'			// archive message(s)
+		'unarchive'			// unarchive message(s) (move back to inbox)
+		'star'				// star message(s)
+		'unstar',			// remove star label from message(s)
+		'spam', 			// mark message(s) as spam
+		'unspam' 			// unmark message(s) as spam
+		'deleteForever' 	// permanently deletes the message(s)
+		'toggleTrash' 		// calling this on a message will move it to the inbox if it is in the trash OR will move it to the trash if it is somewhere else
+		'block' 			// block the number associated with the message(s)
+		'unblock' 			// unblock the number associated with the message(s)
+		'saveNote'			// save custom note for a message
+		'deleteNote'		// delete a message's note
+		'saveTranscript'	// modify the transcript of a voicemail
+		'restoreTranscript'	// restore the transcript of a voicemail to Google Voice's original transcript
+		'donate' 			// 'donate' the transcript of a voicemail to Google for testing with a human operator
+		'undonate'			// undo a 'donate'
+		'forward'			// forward the transcript of a voicemail (and optionally, a link to the mp3) to a list of email addresses, with a custom subject and body
+
 	```
 
-* `messageID` (String or Array) is the String/Array of unique Google Voice message id(s). This ID can be had from the message objects returned by `voiceClient.get()` (discussed earlier)
-* `callback` (Function) is of the form function(body, response) where `body` and `response` are described above in the Preliminaries section
+* `options` (Object, required): properties include:
+	`id` (String or Array of Strings, required): the unique message id(s) of the messages to manipulate. Note: if type is one of `saveNote`, `deleteNote`, `saveTranscript`, `restoreTranscript`, or `forward`, an Array of ids MAY NOT BE USED. Only one message can be manipulated at a time with these methods. A `CANNOT_SET_MULTIPLE_MSGS` error will be thrown. 
+	`note` (String, required for type=='saveNote')
+	`transcript` (String, required only for type=='saveTranscript')
+	`email` (String or Array of Strings, required only for type=='forward'): email address(es) to which the voicemail will be sent
+	`subject` (String, optional, only for type=='forward'): the subject of the email message
+	`body` (String, optional, only for type=='forward'): the body of the email message
+	`link` (Boolean, optional, default is false, only for type=='forward'): whether the email should include a link to the mp3 of the voicemail
+* `callback` (Function(error, response, body), optional)
+	* `error` (Number) - is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`.
+	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
+	* `body` (String): the response from Google Voice for the request. It is JSON data, and is typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`. No attempts to parse these responses is made, because the string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
 
-#### Example:  star a message:
 
-```javascript
-	voiceClient.set('star',messageID,function(body,response){
-		console.log(body);
-	})
-```
+## Getting Google Voice settings: GV.Client.getSettings(callback)
 
-#### Example:  archive a bunch of messages:
+## Setting Google Voice settings: GV.Client.setSetting()
 
-```javascript
-	voiceClient.set('archive',[messageID1,messageID2,messageID3],function(body,response){
-		console.log(body);
-	})
-```
+## Status Codes: GV.STATUSES
+In usual Node fashion, every callback's first argument is `error`. By convention, `error` is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`.
+
+## Examples
+#### Create a GV.Client instance
+
+	var GV = require('./gv.js');
+
+	var client = new GV.Client({
+		email: 'email@gmail.com',
+		password: 'password',
+		rnr_se: '##ABCDE#F#GHI###JKLMNOP='
+	});
+
+#### Place a call to 18005551212 using the mobile phone number 1234567890 associated with my GV account
+	
+	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
+		if(error){
+			console.log('Error: ', error);
+		}else{
+			console.log('Call placed with status: ',body);
+		}
+	});
+
+
+#### Send a text to 18005551212 and 1234567890
+
+	client.connect('sms',{outgoingNumber:['18005551212','1234567890'], text:'Guys, come over for dinner tomorrow!'}, function(error, response, body){
+		var data = JSON.parse(body);
+		if(error || !data.ok){
+			console.log('Error: ', error, ', response: ', body);
+		}else{
+			console.log('Text sent succesfully.');
+		}
+	});
+
+#### Cancel the last call
+
+	client.connect('cancel');
+
+
+#### Display messages in the inbox, indicating if they have been read or not
+
+	client.get('inbox',null,function(error, response){
+		if(error){
+			console.log('Error: ',error);
+		}else{
+			console.log('There are',response.total,'messages in the inbox. The last', response.messages.length, 'are:');
+			response.messages.forEach(function(msg, index){
+				console.log(msg.isRead ? ' ' : '*', (index+1)+'.', msg.displayStartDateTime, msg.displayNumber);
+			});
+		}
+	});
+
+#### Retrieve the most recent SMS and display its message thread
+	
+	client.get('sms',{limit:1},function(error, response){
+		if(error){
+			console.log('Error: ',error);
+		}else{
+			var latest = response.messages[0];
+			
+			if(!latest){ 
+				console.log('No texts found.');
+				return; 
+			}
+			
+			console.log('From ', latest.displayNumber, ' at ', latest.displayStartDateTime);
+			latest.thread.forEach(function(sms){
+				console.log(sms.time, sms.from, sms.text);
+			})
+		}
+	});
+
+#### Star all messages to/from/mentioning 'mom' and download any that are voicemails
+	
+	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
+		if(error){
+			console.log('Error: ', error);
+		}else{
+			response.messages.forEach(function(msg){
+				client.set('star',{id: msg.id});
+				if(!!~msg.labels.indexOf('voicemail')){
+					var fileName = msg.id + '.mp3';
+					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
+						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
+					});
+				}
+			})
+		}
+	});
+
+#### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
+
+	client.get('voicemail', null, function(error,response){
+		if(error){
+			console.log('Error: ',error);
+			return;
+		}
+		if(!response.messages.length){ return; }
+		
+		var latest = response.messages[0];
+		client.set('saveTranscript',{id: latest.id, transcript: 'Here is the correct transcript, Google!'}, function(error, httpResponse, body){
+			var data = JSON.parse(body);
+			if(error || !data.ok){
+				console.log('Error: ', error, ', response: ', body);
+			}else{
+				console.log('Transcript updated.');
+				client.set('donate',{id: latest.id});
+			}
+		})
+		
+	});
+
+#### Get all the phones associated with the Google Voice account
+
+
+
 
 ## TODO
-* Detect removed scheduling events in Google Calendar
-* Set message notes
-* Schedule SMS's with Google Calendar
-* Get and set Google Voice settings
-* Retrieve contacts
-* Download/stream voicemail MP3s
+* change various Google Voice settings
+* automate authentication, removing the need for manually obtaining the 'rnr_se'
+* retrieve contacts
+* a schedule plugin to use Google Calendar to automatically place calls or send texts
 
 ## License
 What? This project is [UNLICENSED](http://unlicense.org/) .
