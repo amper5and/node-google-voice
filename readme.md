@@ -19,9 +19,8 @@ It currently allows you to:
 (Note that the call scheduler has been removed in 0.1.)
 
 ### Dependencies
-node-google-voice depends on:
 
-* [node.js](http://nodejs.org)
+* [node.js](http://nodejs.org) - node-google-voice has been tested with Node 0.6.7. YMMV with other versions. 
 * [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin) - used for authentication to the Google Voice service
 * [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js) - used for extracting JSON & HTML data from Google Voice XML responses
 * [jsdom](https://github.com/tmpvar/jsdom) - for extracting SMS threads from GV data
@@ -29,15 +28,140 @@ node-google-voice depends on:
 
 [npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing these modules (and *their* dependencies) independently.
 
-### Node.js version
-node-google-voice has been tested with Node 0.6.7. YMMV with other versions. 
-
 ### Installation
 Install node-google-voice via npm:
 
 	npm install google-voice
 	
 (In more recent versions of Node, npm is included. See [the npm page](https://github.com/isaacs/npm) for information on installing npm with older versions of Node.)
+
+### Examples
+###### Create a GV.Client instance
+
+	var GV = require('google-voice');
+
+	var client = new GV.Client({
+		email: 'email@gmail.com',
+		password: 'password'
+	});
+	
+###### Get the numbers of unread messages in each GV label
+
+	client.getCounts(function(error, counts){
+		if(err){
+			console.log('Error: ',err);
+			return;
+		}
+		
+		console.log(counts);
+	});
+
+###### Place a call to 18005551212 using the mobile phone number 1234567890 associated with the GV account
+	
+	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
+		if(error){
+			console.log('Error: ', error);
+		}else{
+			console.log('Call placed with status: ',body);
+		}
+	});
+
+
+###### Send a text to 18005551212 and 1234567890
+
+	client.connect('sms',{outgoingNumber:['18005551212','1234567890'], text:'Guys, come over for dinner tomorrow!'}, function(error, response, body){
+		var data = JSON.parse(body);
+		if(error || !data.ok){
+			console.log('Error: ', error, ', response: ', body);
+		}else{
+			console.log('Text sent succesfully.');
+		}
+	});
+
+###### Cancel the last call
+
+	client.connect('cancel');
+
+###### Display messages in the inbox, indicating if they have been read or not
+
+	client.get('inbox',null,function(error, response){
+		if(error){
+			console.log('Error: ',error);
+		}else{
+			console.log('There are',response.total,'messages in the inbox. The last', response.messages.length, 'are:');
+			response.messages.forEach(function(msg, index){
+				console.log(msg.isRead ? ' ' : '*', (index+1)+'.', msg.displayStartDateTime, msg.displayNumber);
+			});
+		}
+	});
+
+###### Retrieve the most recent SMS and display its message thread
+	
+	client.get('sms',{limit:1},function(error, response){
+		if(error){
+			console.log('Error: ',error);
+		}else{
+			var latest = response.messages[0];
+			
+			if(!latest){ 
+				console.log('No texts found.');
+				return; 
+			}
+			
+			console.log('From ', latest.displayNumber, ' at ', latest.displayStartDateTime);
+			latest.thread.forEach(function(sms){
+				console.log(sms.time, sms.from, sms.text);
+			})
+		}
+	});
+
+###### Star all messages to/from/mentioning 'mom' and download any that are voicemails
+	
+	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
+		if(error){
+			console.log('Error: ', error);
+		}else{
+			response.messages.forEach(function(msg){
+				client.set('star',{id: msg.id});
+				if(!!~msg.labels.indexOf('voicemail')){
+					var fileName = msg.id + '.mp3';
+					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
+						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
+					});
+				}
+			})
+		}
+	});
+
+###### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
+
+	client.get('voicemail', null, function(error,response){
+		if(error){
+			console.log('Error: ',error);
+			return;
+		}
+		if(!response.messages.length){ return; }
+		
+		var latest = response.messages[0];
+		client.set('saveTranscript',{id: latest.id, transcript: 'Here is the correct transcript, Google!'}, function(error, httpResponse, body){
+			var data = JSON.parse(body);
+			if(error || !data.ok){
+				console.log('Error: ', error, ', response: ', body);
+			}else{
+				console.log('Transcript updated.');
+				client.set('donate',{id: latest.id});
+			}
+		})
+		
+	});
+
+###### Get all the phones associated with the Google Voice account
+	
+	client.getSettings(function(error, settings){
+		if(error){ console.log('Error: ',error); return; }
+		console.log(settings.phones);
+	});
+
 
 ### API
 The GV object has the following properties:
@@ -366,124 +490,6 @@ Some callbacks have a response from Google in the `body`. These include callback
 * `{"ok":false,"error":"Can't edit text of non-voicemail call #A#####AA$$$A$$$$A$$$$A###AAA###A#A####AAA#AA","errorCode":84}`
 	
 At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples below show how this can be done.
-
-### Examples
-###### Create a GV.Client instance
-
-	var GV = require('google-voice');
-
-	var client = new GV.Client({
-		email: 'email@gmail.com',
-		password: 'password'
-	});
-
-###### Place a call to 18005551212 using the mobile phone number 1234567890 associated with my GV account
-	
-	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
-		if(error){
-			console.log('Error: ', error);
-		}else{
-			console.log('Call placed with status: ',body);
-		}
-	});
-
-
-###### Send a text to 18005551212 and 1234567890
-
-	client.connect('sms',{outgoingNumber:['18005551212','1234567890'], text:'Guys, come over for dinner tomorrow!'}, function(error, response, body){
-		var data = JSON.parse(body);
-		if(error || !data.ok){
-			console.log('Error: ', error, ', response: ', body);
-		}else{
-			console.log('Text sent succesfully.');
-		}
-	});
-
-###### Cancel the last call
-
-	client.connect('cancel');
-
-
-###### Display messages in the inbox, indicating if they have been read or not
-
-	client.get('inbox',null,function(error, response){
-		if(error){
-			console.log('Error: ',error);
-		}else{
-			console.log('There are',response.total,'messages in the inbox. The last', response.messages.length, 'are:');
-			response.messages.forEach(function(msg, index){
-				console.log(msg.isRead ? ' ' : '*', (index+1)+'.', msg.displayStartDateTime, msg.displayNumber);
-			});
-		}
-	});
-
-###### Retrieve the most recent SMS and display its message thread
-	
-	client.get('sms',{limit:1},function(error, response){
-		if(error){
-			console.log('Error: ',error);
-		}else{
-			var latest = response.messages[0];
-			
-			if(!latest){ 
-				console.log('No texts found.');
-				return; 
-			}
-			
-			console.log('From ', latest.displayNumber, ' at ', latest.displayStartDateTime);
-			latest.thread.forEach(function(sms){
-				console.log(sms.time, sms.from, sms.text);
-			})
-		}
-	});
-
-###### Star all messages to/from/mentioning 'mom' and download any that are voicemails
-	
-	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
-		if(error){
-			console.log('Error: ', error);
-		}else{
-			response.messages.forEach(function(msg){
-				client.set('star',{id: msg.id});
-				if(!!~msg.labels.indexOf('voicemail')){
-					var fileName = msg.id + '.mp3';
-					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
-						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
-					});
-				}
-			})
-		}
-	});
-
-###### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
-
-	client.get('voicemail', null, function(error,response){
-		if(error){
-			console.log('Error: ',error);
-			return;
-		}
-		if(!response.messages.length){ return; }
-		
-		var latest = response.messages[0];
-		client.set('saveTranscript',{id: latest.id, transcript: 'Here is the correct transcript, Google!'}, function(error, httpResponse, body){
-			var data = JSON.parse(body);
-			if(error || !data.ok){
-				console.log('Error: ', error, ', response: ', body);
-			}else{
-				console.log('Transcript updated.');
-				client.set('donate',{id: latest.id});
-			}
-		})
-		
-	});
-
-###### Get all the phones associated with the Google Voice account
-	
-	client.getSettings(function(error, settings){
-		if(error){ console.log('Error: ',error); return; }
-		console.log(settings.phones);
-	});
-
 
 
 ### TODO

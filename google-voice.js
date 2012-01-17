@@ -237,7 +237,6 @@ exports.Client.prototype.connect=function(method,options,callback){
 	var gv = this;	
 	callback = callback || ( options && is(options,'function') ? options : noop);
 	
-	
 	var status = validateRequest(methods, method, options);
 	if(status){ callback(status,null,null); return; }
 	
@@ -648,7 +647,7 @@ exports.Client.prototype.getCounts = function(callback){
 		if(!error){
 			gv.unreadCounts = json.unreadCounts;
 		}
-		callback(error, json, httpResponse, body, xmlObject, err)
+		callback(error, json.unreadCounts, httpResponse, body, xmlObject, err)
 	});
 };
 
