@@ -53,6 +53,9 @@ function copyOneLevel(obj){
 };
 
 function is(variable,type){
+	if(!variable){
+		return false;
+	}
 	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
 };
 
@@ -232,7 +235,7 @@ methods.cancel = {
 
 exports.Client.prototype.connect=function(method,options,callback){
 	var gv = this;	
-	callback = callback || ( is(options,'function') ? options : noop);
+	callback = callback || ( options && is(options,'function') ? options : noop);
 	
 	
 	var status = validateRequest(methods, method, options);

@@ -7,7 +7,7 @@ It currently allows you to:
 * access and manipulate GV messages
 * access GV settings
 
-### What's new in 0.1.3 ?
+### What's new in 0.1 ?
 
 * new common, consistent methods for calling/texting and getting/setting messages
 * voicemail download
