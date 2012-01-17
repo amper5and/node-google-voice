@@ -70,8 +70,7 @@ This is the common method for texting, calling, and canceling calls. The paramet
 * `callback`  (Function(error, response, body), optional):
 	* `error` (Number) - See Status Codes below.
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
-	* `body` (String): the response from Google Voice for the request. It is JSON data, and is typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`. No attempts to parse these responses is made, because string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
-
+	* `body` (String): the response from Google Voice for the request. See 'Google Response' below.
 #### Options parameters depending on `method`
 
 ##### call
@@ -216,9 +215,7 @@ This is the common setter method that manipulates GV messages on the server. Arg
 * `callback` (Function(error, response, body), optional)
 	* `error` (Number): see Status Codes below
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
-	* `body` (String): the response from Google Voice for the request. It is JSON data, and is typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`. No attempts to parse these responses is made, because the string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
-
-
+	* `body` (String): the response from Google Voice for the request. See 'Google Responses' below.
 ### Getting Google Voice settings: GV.Client.getSettings(callback)
 * `callback` (Function(error, settings))
 	* `error` (Number): see Status Codes below
@@ -330,7 +327,17 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	
 
 ### Status Codes: GV.STATUSES
-In usual Node fashion, every callback's first argument is `error`. By convention, `error` is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`.
+In usual Node fashion, every callback's first argument is `error`. By convention, `error` is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`. An `error` of `0` for the `client.connect` and `client.set` methods just means that there were no errors up to the point of submitting the request to Google. The response from Google may have an error code in it, and can be parsed by the end user. See 'Google Responses' below.
+
+### Google Responses
+Some callbacks have a response from Google in the `body`. These include callbacks for `client.connect` and `client.set`. It is JSON data, and is typically something like:
+ 
+* `{ ok: true, data: { code: 0 } }`
+* `{ ok: false, error: 'Cannot complete call.' }`
+* `{ ok: false, data: { code: 20 } }`. 
+* `{"ok":false,"error":"Can't edit text of non-voicemail call #A#####AA$$$A$$$$A$$$$A###AAA###A#A####AAA#AA","errorCode":84}`
+	
+At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples below show how this can be done.
 
 ### Examples
 ##### Create a GV.Client instance
