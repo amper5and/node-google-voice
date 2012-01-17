@@ -214,14 +214,120 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	* `body` (String, optional, only for type=='forward'): the body of the email message
 	* `link` (Boolean, optional, default is false, only for type=='forward'): whether the email should include a link to the mp3 of the voicemail
 * `callback` (Function(error, response, body), optional)
-	* `error` (Number) - is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`.
+	* `error` (Number): see Status Codes below
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
 	* `body` (String): the response from Google Voice for the request. It is JSON data, and is typically something like `{ ok: true, data: { code: 0 } }` or `{ ok: false, error: 'Cannot complete call.' }` or `{ ok: false, data: { code: 20 } }`. No attempts to parse these responses is made, because the string can change as Google makes changes to how Google Voice works. You can attempt to map the different codes to different events, but this is unreliable due to the undocumented and unofficial nature of the GV 'api'.
 
 
 ### Getting Google Voice settings: GV.Client.getSettings(callback)
-
-### Setting Google Voice settings: GV.Client.setSetting()
+* `callback` (Function(error, settings))
+	* `error` (Number): see Status Codes below
+	* `callback` (Function(error, settings)): `settings` is the settings object from GV. At the time of this writing, it had the following form:
+	
+	```javascript
+	{ phones: 
+	   { '2': 
+	      { id: 2,
+	        name: 'Gizmo',
+	        phoneNumber: '+##########',
+	        type: 7,
+	        verified: true,
+	        policyBitmask: 0,
+	        dEPRECATEDDisabled: false,
+	        telephonyVerified: true,
+	        smsEnabled: false,
+	        incomingAccessNumber: '',
+	        voicemailForwardingVerified: false,
+	        behaviorOnRedirect: 0,
+	        carrier: '',
+	        customOverrideState: 0,
+	        inVerification: false,
+	        androidVoipJid: '',
+	        recentlyProvisionedOrDeprovisioned: false,
+	        formattedNumber: '(###) ###-####',
+	        wd: [Object],
+	        we: [Object],
+	        scheduleSet: false,
+	        weekdayAllDay: false,
+	        weekdayTimes: [],
+	        weekendAllDay: false,
+	        weekendTimes: [],
+	        redirectToVoicemail: false,
+	        active: true,
+	        enabledForOthers: true },
+	     '3': 
+	      { id: 3,
+	        name: 'GMail Talk',
+	        phoneNumber: 'username@gmail.com',
+	        type: 9,
+	        verified: true,
+	        policyBitmask: 0,
+	        dEPRECATEDDisabled: false,
+	        telephonyVerified: false,
+	        smsEnabled: false,
+	        incomingAccessNumber: '',
+	        voicemailForwardingVerified: false,
+	        behaviorOnRedirect: 0,
+	        carrier: '',
+	        customOverrideState: 0,
+	        inVerification: false,
+	        androidVoipJid: '',
+	        recentlyProvisionedOrDeprovisioned: false,
+	        formattedNumber: 'username@gmail.com',
+	        wd: [Object],
+	        we: [Object],
+	        scheduleSet: false,
+	        weekdayAllDay: false,
+	        weekdayTimes: [],
+	        weekendAllDay: false,
+	        weekendTimes: [],
+	        redirectToVoicemail: false,
+	        active: true,
+	        enabledForOthers: true }},
+	  phoneList: [ 2, 3],
+	  settings: 
+	   { primaryDid: '+##########',
+	     language: 'en',
+	     screenBehavior: 1,
+	     useDidAsCallerId: false,
+	     credits: 600,
+	     timezone: 'America/New_York',
+	     doNotDisturb: false,
+	     directRtp: 0,
+	     filterGlobalSpam: 1,
+	     enablePinAccess: 1,
+	     didInfos: [],
+	     smsNotifications: [],
+	     emailNotificationActive: true,
+	     emailNotificationAddress: 'username@gmail.com',
+	     smsToEmailActive: true,
+	     smsToEmailSubject: false,
+	     missedToEmail: true,
+	     showTranscripts: true,
+	     directConnect: false,
+	     useDidAsSource: true,
+	     emailToSmsActive: false,
+	     i18nSmsActive: false,
+	     missedToInbox: false,
+	     greetings: [ [Object] ],
+	     greetingsMap: {},
+	     activeForwardingIds: [ 2, 3],
+	     disabledIdMap: {},
+	     defaultGreetingId: 0,
+	     webCallButtons: [ [Object] ],
+	     groups: 
+	      { '13': [Object],
+	        '14': [Object],
+	        '15': [Object],
+	        '9999': [Object],
+	        '10000': [Object],
+	        '1431499560409739077': [Object] },
+	     groupList: [ '10000', '9999', '15', '13', '14', '1431499560409739077' ],
+	     lowBalanceNotificationEnabled: false,
+	     emailAddresses: [ 'username@gmail.com', 'an_email_@push.boxcar.io' ],
+	     baseUrl: 'https://www.google.com/voice' } }
+	```
+	
 
 ### Status Codes: GV.STATUSES
 In usual Node fashion, every callback's first argument is `error`. By convention, `error` is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`.
