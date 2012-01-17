@@ -7,13 +7,14 @@ It currently allows you to:
 * access and manipulate GV messages
 * access GV settings
 
-### What's new in 0.1 ?
+### What's new in 0.1.3 ?
 
 * new common, consistent methods for calling/texting and getting/setting messages
 * voicemail download
 * new methods for getting Google Voice settings
 * extra get and set methods, such as 'unread', 'saveNote'/'deleteNote', 'saveTranscript'/'restoreTranscript'
 * faster message requests, due to internal parallel downloading of data
+* no need to obtain the RNR_SE id manually
 
 (Note that the call scheduler has been removed in 0.1.)
 
@@ -67,15 +68,15 @@ where `options` is an Object with the following properties:
 
 * `email` (String, required) - your Google Voice login email
 * `password` (String, required) - your Google Voice password
-* `rnr_se` (String, required) - the unique identifier associated with your GV account
+* `rnr_se` (String, optional) - the unique identifier associated with your GV account
 	* The `rnr_se` is some kind of ID created by Google for your Google Voice account. At this time, it can be obtained by logging into the Google Voice web front-end and running the following javascript snippet in the browser window:
 	
 	```javascript
 	javascript:alert(_gcData._rnr_se);
 	```
 	
-	* You only have to get your rnr_se once, because it doesn't appear to change. However, if something does stop working in node-google-voice, first check that your `rnr_se` hasn't changed.
-
+	* You only have to get your rnr_se once, because it doesn't appear to change. However, if something does stop working in node-google-voice and you are manually supplying the `rnr_se`, first check that your `rnr_se` hasn't changed.
+	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically. If it fails, a 'GET_RNRSE_ERROR' error will occur.
 
 
 
@@ -487,7 +488,6 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 
 ### TODO
 * allow changing of various Google Voice settings
-* automate authentication, removing the need for manually obtaining the 'rnr_se'
 * retrieve contacts
 * a schedule plugin to use Google Calendar to automatically place calls or send texts
 

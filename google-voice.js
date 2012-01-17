@@ -22,9 +22,10 @@ clientLogin.GoogleClientLogin.prototype.loginWithCB = function(callback){
 var STATUSES = {
 	NO_ERROR: 0,
 	AUTHENTICATION_ERROR: 1,
-	INIT_ERROR: 2,
-	MISSING_REQUIRED_PARAMETER: 3,
-	INVALID_METHOD: 4,
+	GET_RNRSE_ERROR: 2,
+	INIT_ERROR: 3,
+	MISSING_REQUIRED_PARAMETER: 4,
+	INVALID_METHOD: 5,
 	GOOGLE_CLIENTLOGIN_ERROR: 10,
 	REQUEST_ERROR: 11,
 	XML2JS_ERROR: 12,
@@ -37,12 +38,38 @@ var STATUSES = {
 	HTTP_ERROR: 200
 };
 
-exports.STATUSES = STATUSES;
+
 
 function noop(){};
 
+function copyOneLevel(obj){
+	var newobj = {};
+	
+	for(var variable in obj){
+		newobj[variable] = obj[variable];
+	}
+	
+	return newobj;
+};
+
 function is(variable,type){
 	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
+};
+
+function getRnrse(gv, callback){
+	gvrequest(gv, null, function(error, httpResponse, body, err){
+		if(error){
+			callback(STATUSES.GET_RNRSE_ERROR, null, httpResponse, body, error);
+		}else{
+			try{
+				var doc = jsdom.jsdom(body);
+				var rnrse = doc.getElementsByName('_rnr_se')[0].value;
+			}catch(e){
+				var rnrse = null;
+			}
+			callback(rnrse ? STATUSES.NO_ERROR : STATUSES.GET_RNRSE_ERROR, rnrse, httpResponse, body);
+		}
+	});
 };
 
 var maxAuthAttempts = 2;
@@ -55,6 +82,19 @@ function gvrequest(gv,options,callback){
 	headers.Authorization = 'GoogleLogin auth=' + gv.auth.getAuthId() ;
 	
 	if(method === 'POST'){
+		if(!gv.config.rnr_se){
+			getRnrse(gv, function(error, rnrse, httpResponse, body, err){
+				if(error){
+					callback(STATUSES.GET_RNRSE_ERROR, httpResponse, body);
+				}else{
+					gv.config = gv.config || {};
+					gv.config.rnr_se = rnrse;
+					gvrequest(gv, options, callback);
+				}
+			});
+			return;
+		}
+		
 		headers['Content-Type'] = 'application/x-www-form-urlencoded';
 		query['_rnr_se'] = gv.config.rnr_se;
 	}
@@ -111,6 +151,8 @@ function validateRequest(methods, method, options){
 	
 	return STATUSES.NO_ERROR;
 };
+
+exports.STATUSES = copyOneLevel(STATUSES);
 
 exports.Client=function(options,callback){
 	callback = callback || noop;
