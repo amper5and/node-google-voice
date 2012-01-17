@@ -38,6 +38,23 @@ Install node-google-voice via npm:
 	
 (In more recent versions of Node, npm is included. See [the npm page](https://github.com/isaacs/npm) for information on installing npm with older versions of Node.)
 
+### API
+The GV object has the following properties:
+
+* Client
+	* connect(method, options, callback)
+	* get(type, options, callback)
+	* set(type, options, callback)
+	* download(id/options, callback)
+	* getCounts(callback)
+	* getSettings(callback)
+	* config
+		* email
+		* password
+		* rnr_se
+	* settings
+* STATUSES
+
 
 ### Instantiate a Google Voice client: new GV.Client(options)
 
@@ -73,7 +90,8 @@ This is the common method for texting, calling, and canceling calls. The paramet
 	* `body` (String): the response from Google Voice for the request. See 'Google Response' below.
 #### Options parameters depending on `method`
 
-##### call
+**call**
+
 * `outgoingNumber` (String, required) - the number you wish to be connected TO
 * `forwardingNumber` (String, required) - the phone on your GV account that you wish to connect WITH
 * `phoneType` (Number, required) - the phoneType of the `forwardingNumber`. Options are:
@@ -85,11 +103,13 @@ This is the common method for texting, calling, and canceling calls. The paramet
 
 	(Note that information about the phones and phoneTypes on your GV account can be obtained from the `client.settings.phones`, after fetching the settings. See `GV.Client.getSettings` below.)
 
-##### sms
+**sms**
+
 * `outgoingNumber` (String or Array of Strings, required)
 * `text` (String, optional)
 
-##### cancel
+**cancel**
+
 This method cancels the current outgoing call before it is connected. No options are required. `options` can be `null`, or the following form can be used: `GV.Client.connect('cancel',callback)`
 
 
@@ -155,6 +175,8 @@ This is the common method for fetching Google Voice messages, whether they are t
 				* `time` (String)
 				* `text` (String)
 
+
+
 ### Updating unread counts: GV.Client.getCounts(callback)
 
 Every time `.get()` is used, the client's `unreadCounts` property is updated with the latest unread count for each label in Google Voice.
@@ -164,6 +186,8 @@ There is also a `.getCounts(callback)` method to do this manually. It takes one 
 	* `error` (Number): see Status Codes below
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
 	
+
+
 
 ### Downloading voicemails and recorded calls: GV.Client.download(id,callback), GV.Client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
@@ -205,7 +229,7 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	```
 
 * `options` (Object, required): properties include:
-	* `id` (String or Array of Strings, required): the unique message id(s) of the messages to manipulate. Note: if type is one of `saveNote`, `deleteNote`, `saveTranscript`, `restoreTranscript`, or `forward`, an Array of ids MAY NOT BE USED. Only one message can be manipulated at a time with these methods. A `CANNOT_SET_MULTIPLE_MSGS` error will be thrown. 
+	* `id` (String or Array of Strings, required): the unique message id(s) of the messages to manipulate. Note: if type is one of 'saveNote', 'deleteNote', 'saveTranscript', 'restoreTranscript', or 'forward', an Array of ids MAY NOT BE USED. Only one message can be manipulated at a time with these methods. A CANNOT_SET_MULTIPLE_MSGS error will occur. 
 	* `note` (String, required for type=='saveNote')
 	* `transcript` (String, required only for type=='saveTranscript')
 	* `email` (String or Array of Strings, required only for type=='forward'): email address(es) to which the voicemail or recording will be sent
@@ -214,7 +238,7 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	* `link` (Boolean, optional, default is false, only for type=='forward'): whether the email should include a link to the mp3 of the voicemail
 * `callback` (Function(error, response, body), optional)
 	* `error` (Number): see Status Codes below
-	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
+	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). 
 	* `body` (String): the response from Google Voice for the request. See 'Google Responses' below.
 ### Getting Google Voice settings: GV.Client.getSettings(callback)
 * `callback` (Function(error, settings))
@@ -340,7 +364,7 @@ Some callbacks have a response from Google in the `body`. These include callback
 At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples below show how this can be done.
 
 ### Examples
-##### Create a GV.Client instance
+###### Create a GV.Client instance
 
 	var GV = require('./gv.js');
 
@@ -350,7 +374,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		rnr_se: '##ABCDE#F#GHI###JKLMNOP='
 	});
 
-##### Place a call to 18005551212 using the mobile phone number 1234567890 associated with my GV account
+###### Place a call to 18005551212 using the mobile phone number 1234567890 associated with my GV account
 	
 	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
 		if(error){
@@ -361,7 +385,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 	});
 
 
-##### Send a text to 18005551212 and 1234567890
+###### Send a text to 18005551212 and 1234567890
 
 	client.connect('sms',{outgoingNumber:['18005551212','1234567890'], text:'Guys, come over for dinner tomorrow!'}, function(error, response, body){
 		var data = JSON.parse(body);
@@ -372,12 +396,12 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		}
 	});
 
-##### Cancel the last call
+###### Cancel the last call
 
 	client.connect('cancel');
 
 
-##### Display messages in the inbox, indicating if they have been read or not
+###### Display messages in the inbox, indicating if they have been read or not
 
 	client.get('inbox',null,function(error, response){
 		if(error){
@@ -390,7 +414,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		}
 	});
 
-##### Retrieve the most recent SMS and display its message thread
+###### Retrieve the most recent SMS and display its message thread
 	
 	client.get('sms',{limit:1},function(error, response){
 		if(error){
@@ -410,7 +434,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		}
 	});
 
-##### Star all messages to/from/mentioning 'mom' and download any that are voicemails
+###### Star all messages to/from/mentioning 'mom' and download any that are voicemails
 	
 	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 		if(error){
@@ -428,7 +452,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		}
 	});
 
-##### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
+###### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
 
 	client.get('voicemail', null, function(error,response){
 		if(error){
@@ -450,7 +474,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 		
 	});
 
-##### Get all the phones associated with the Google Voice account
+###### Get all the phones associated with the Google Voice account
 	
 	client.getSettings(function(error, settings){
 		if(error){ console.log('Error: ',error); return; }
