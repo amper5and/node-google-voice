@@ -54,6 +54,7 @@ The GV object has the following properties:
 		* password
 		* rnr_se
 	* settings
+	* unreadCounts
 * STATUSES
 
 
