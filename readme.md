@@ -369,12 +369,11 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 ### Examples
 ###### Create a GV.Client instance
 
-	var GV = require('./gv.js');
+	var GV = require('google-voice');
 
 	var client = new GV.Client({
 		email: 'email@gmail.com',
-		password: 'password',
-		rnr_se: '##ABCDE#F#GHI###JKLMNOP='
+		password: 'password'
 	});
 
 ###### Place a call to 18005551212 using the mobile phone number 1234567890 associated with my GV account
