@@ -88,9 +88,10 @@ This is the common method for texting, calling, and canceling calls. The paramet
 	* `error` (Number) - See Status Codes below.
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
 	* `body` (String): the response from Google Voice for the request. See 'Google Response' below.
+
 #### Options parameters depending on `method`
 
-**call**
+###### 'call'
 
 * `outgoingNumber` (String, required) - the number you wish to be connected TO
 * `forwardingNumber` (String, required) - the phone on your GV account that you wish to connect WITH
@@ -103,12 +104,12 @@ This is the common method for texting, calling, and canceling calls. The paramet
 
 	(Note that information about the phones and phoneTypes on your GV account can be obtained from the `client.settings.phones`, after fetching the settings. See `GV.Client.getSettings` below.)
 
-**sms**
+###### 'sms'
 
 * `outgoingNumber` (String or Array of Strings, required)
 * `text` (String, optional)
 
-**cancel**
+###### 'cancel'
 
 This method cancels the current outgoing call before it is connected. No options are required. `options` can be `null`, or the following form can be used: `GV.Client.connect('cancel',callback)`
 
