@@ -166,10 +166,10 @@ There is also a `.getCounts(callback)` method to do this manually. It takes one 
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
 	
 
-### Downloading voicemails: GV.Client.download(id,callback), GV.Client.download(options,callback)
-These two methods allow you to download the audio recording of voicemails. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
+### Downloading voicemails and recorded calls: GV.Client.download(id,callback), GV.Client.download(options,callback)
+These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
-* id (String): the unique message id of the voicemail
+* id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
 * options (Object) with the following properties:
 	* id (String, required) - Unique voicemail message id
 	* file (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
@@ -202,14 +202,14 @@ This is the common setter method that manipulates GV messages on the server. Arg
 		'restoreTranscript'	// restore the transcript of a voicemail to Google Voice's original transcript
 		'donate' 			// 'donate' the transcript of a voicemail to Google for testing with a human operator
 		'undonate'			// undo a 'donate'
-		'forward'			// forward the transcript of a voicemail (and optionally, a link to the mp3) to a list of email addresses, with a custom subject and body
+		'forward'			// forward the transcript of a voicemail (and optionally, a link to the mp3) to a list of email addresses, with a custom subject and body. Recorded calls can be sent this way too, but they are not transcribed, so make sure to include link:true so that the audio is sent.
 	```
 
 * `options` (Object, required): properties include:
 	* `id` (String or Array of Strings, required): the unique message id(s) of the messages to manipulate. Note: if type is one of `saveNote`, `deleteNote`, `saveTranscript`, `restoreTranscript`, or `forward`, an Array of ids MAY NOT BE USED. Only one message can be manipulated at a time with these methods. A `CANNOT_SET_MULTIPLE_MSGS` error will be thrown. 
 	* `note` (String, required for type=='saveNote')
 	* `transcript` (String, required only for type=='saveTranscript')
-	* `email` (String or Array of Strings, required only for type=='forward'): email address(es) to which the voicemail will be sent
+	* `email` (String or Array of Strings, required only for type=='forward'): email address(es) to which the voicemail or recording will be sent
 	* `subject` (String, optional, only for type=='forward'): the subject of the email message
 	* `body` (String, optional, only for type=='forward'): the body of the email message
 	* `link` (Boolean, optional, default is false, only for type=='forward'): whether the email should include a link to the mp3 of the voicemail

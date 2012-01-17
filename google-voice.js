@@ -421,7 +421,7 @@ exports.Client.prototype.download = function(options, callback){
 			callback(error, httpResponse, body);
 		}else{
 			if(options.hasOwnProperty('file')){
-				fs.writeFile(options.file.toString(), body, function(err){
+				fs.writeFile(new String(options.file), body, function(err){
 					callback(err ? STATUSES.FILE_ERROR : STATUSES.NO_ERROR, httpResponse, body, err);
 				});
 			}else{
