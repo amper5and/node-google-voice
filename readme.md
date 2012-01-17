@@ -89,6 +89,7 @@ This is the common method for texting, calling, and canceling calls. The paramet
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
 	* `body` (String): the response from Google Voice for the request. See 'Google Response' below.
 
+
 #### Options parameters depending on `method`
 
 ###### 'call'
