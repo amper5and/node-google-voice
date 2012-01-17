@@ -70,10 +70,10 @@ function gvrequest(gv,options,callback){
 		uri: uri,
 		method: method,
 		headers: headers,
-		body: query
+		body: query,
 	};
 	
-	if(options.encoding){
+	if(options.hasOwnProperty('encoding')){
 		requestOptions.encoding = options.encoding;
 	}
 	
@@ -124,7 +124,7 @@ exports.Client=function(options,callback){
 	};
 	this._ = {
 		maxAuthAttempts: 2,
-		authAttempts: 0,
+		authAttempts: 0
 	};
 };
 
@@ -413,7 +413,7 @@ exports.Client.prototype.download = function(options, callback){
 	
 	var requestOptions = {
 		uri: voicemailMp3BaseUrl + id,
-		encoding: 'binary'
+		encoding: null
 	};
 	
 	gvrequest(gv, requestOptions, function(error, httpResponse, body){
@@ -421,7 +421,7 @@ exports.Client.prototype.download = function(options, callback){
 			callback(error, httpResponse, body);
 		}else{
 			if(options.hasOwnProperty('file')){
-				fs.writeFile(options.file.toString(), body, 'binary', function(err){
+				fs.writeFile(options.file.toString(), body, function(err){
 					callback(err ? STATUSES.FILE_ERROR : STATUSES.NO_ERROR, httpResponse, body, err);
 				});
 			}else{
