@@ -96,7 +96,23 @@ function gvrequest(gv,options,callback){
 		}else if(response.statusCode != 200){
 			callback(STATUSES.HTTP_ERROR, response, body);
 		}else{
+<<<<<<< HEAD
 			callback(STATUSES.NO_ERROR, response, body);
+=======
+			response.chunks=[];
+			response.on("data", function(chunk) {
+					response.chunks.push(chunk);
+			});
+			var ran = false;
+			var done = function() {
+				if(ran)return;
+				ran = true;
+				var body = response.chunks.join('');
+				callback(body,response);
+			};
+			response.on("close",done);
+			response.on("end", done);
+>>>>>>> 86d9203dbe453fde033c8b8d140cd38fc8ec3f37
 		}
 	});
 };
@@ -202,6 +218,7 @@ exports.Client.prototype.connect=function(method,options,callback){
 
 // GET METHODS =================================================================
 
+<<<<<<< HEAD
 var getMethods = {
 	unread: {
 		path: '/inbox/recent/unread/'
@@ -248,6 +265,22 @@ var getMethods = {
 			return STATUSES.NO_ERROR;
 		}
 	}
+=======
+exports.Client.prototype.getURLs= {
+	history: 	'/voice/inbox/recent/all/',
+	inbox: 		'/voice/inbox/recent/inbox/',
+	unread: 	'/voice/inbox/recent/unread/',
+	spam: 		'/voice/inbox/recent/spam/',
+	trash: 		'/voice/inbox/recent/trash/',
+	starred: 	'/voice/inbox/recent/starred/',
+	sms: 		'/voice/inbox/recent/sms/',
+	voicemail: 	'/voice/inbox/recent/voicemail/',
+	placed: 	'/voice/inbox/recent/placed/',
+	missed: 	'/voice/inbox/recent/missed/',
+	received: 	'/voice/inbox/recent/received/',
+	recorded: 	'/voice/inbox/recent/recorded/',
+	search: 	'/voice/inbox/search/'
+>>>>>>> 86d9203dbe453fde033c8b8d140cd38fc8ec3f37
 };
 
 var defaultStart = 1;
