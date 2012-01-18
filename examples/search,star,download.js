@@ -6,7 +6,12 @@ var client = new GV.Client({
 });
 
 // Star all messages to/from/mentioning 'mom' and download any that are voicemails
+
+client.get('recorded', {limit:5}, function(error, response){
 	
+});
+
+
 client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 	if(error){
 		console.log('Error: ', error);
