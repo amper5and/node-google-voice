@@ -49,7 +49,8 @@ function GoogleVoiceError(code) {
   this.code = code;
   this.message = statusMap[code];
   this.stack = (new Error()).stack;
-}
+};
+
 GoogleVoiceError.prototype = new Error();
 GoogleVoiceError.prototype.name = 'GoogleVoiceError';
 
@@ -58,7 +59,7 @@ function getError(code) {
     return null;
   }
   return new GoogleVoiceError(code);
-}
+};
 
 function noop(){};
 
@@ -666,9 +667,11 @@ exports.Client.prototype.getSettings = function(callback){
 	var gv = this;
 	callback = callback || noop;
 	getXMLPage(gv,{path:'/settings/tab/settings'},function(error, json, httpResponse, body, xmlObject, err){
-		if(!error){
+		if(error){
+			callback(error, null, httpResponse, body, xmlObject, err);
+		}else{
 			gv.settings = json;
+			callback(error, json, httpResponse, body, xmlObject, err);
 		}
-		callback(error, json, httpResponse, body, xmlObject, err);
 	});
 };

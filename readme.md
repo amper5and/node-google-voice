@@ -235,7 +235,7 @@ This is the common method for texting, calling, and canceling calls. The paramet
 * `method` (String, required): one of 'call', 'sms', or 'cancel'
 * `options`  (Object, required/optional): different properties are required, depending on the `method` used. See below.
 * `callback`  (Function(error, response, body), optional):
-	* `error` (Number) - See Status Codes below.
+	* `error` (GoogleVoiceError)
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). This is the given response for that particular request. It is provided for cases where you would like to get more information about what went wrong (or right) and act on it.
 	* `body` (String): the response from Google Voice for the request. See 'Google Response' below.
 
@@ -293,7 +293,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 	* `limit` (Number, optional, default is variable): maximum number of messages to return. The default is whatever Google's `resultsPerPage` value is (at the time of this writing it's 10). Set this to `Infinity` to retrieve ALL messages pertaining to the request. 
 	* `query` (String, required for type=='search'): The search function is entirely implemented by Google, so the search results are the same as would be returned by searching from the Google Voice web interface.
 * `callback` (Function(error, response), required)
-	* `error` (Number): see Status Codes below.
+	* `error` (GoogleVoiceError)
 	* `response` (Object): has the following properties:
 		* `total` (Number): the total number of messages matching this request
 		* `messages` (Array): an array of Google Voice message objects, sorted by `startTime`. The properties of each message object are whatever Google Voice is supplying at the time of the request. A few properties are added by node-google-voice (indicated below). At the time of this writing, an example message looked like this:	
@@ -335,7 +335,7 @@ Every time `.get()` is used, the client's `unreadCounts` property is updated wit
 There is also a `.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
 
 * callback (Function(error, counts)) where
-	* `error` (Number): see Status Codes below
+	* `error` (GoogleVoiceError)
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
 	
 
@@ -349,7 +349,7 @@ These two methods allow you to download the audio recording of voicemails and re
 	* id (String, required) - Unique voicemail message id
 	* file (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
 * callback (Function(error, httpResponse, body), optional)
-	* error (Number) - see Status Codes below
+	* error (GoogleVoiceError)
 	* httpResponse (Http.ClientResponse)
 	* body (Buffer) - the binary audio data
 
@@ -389,12 +389,12 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	* `body` (String, optional, only for type=='forward'): the body of the email message
 	* `link` (Boolean, optional, default is false, only for type=='forward'): whether the email should include a link to the mp3 of the voicemail
 * `callback` (Function(error, response, body), optional)
-	* `error` (Number): see Status Codes below
+	* `error` (GoogleVoiceError)
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). 
 	* `body` (String): the response from Google Voice for the request. See 'Google Responses' below.
 ### Getting Google Voice settings: GV.Client.getSettings(callback)
 * `callback` (Function(error, settings))
-	* `error` (Number): see Status Codes below
+	* `error` (GoogleVoiceError)
 	* `callback` (Function(error, settings)): `settings` is the settings object from GV. At the time of this writing, it had the following form:
 	
 	```javascript
@@ -501,10 +501,6 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	     baseUrl: 'https://www.google.com/voice' } }
 	```
 	
-
-### Status Codes: GV.STATUSES
-In usual Node fashion, every callback's first argument is `error`. By convention, `error` is `0` or `null` for a successful request. Other codes indicate failure. The list of all codes is found in `GV.STATUSES`. An `error` of `0` for the `client.connect` and `client.set` methods just means that there were no errors up to the point of submitting the request to Google. The response from Google may have an error code in it, and can be parsed by the end user. See 'Google Responses' below.
-
 ### Google Responses
 Some callbacks have a response from Google in the `body`. These include callbacks for `client.connect` and `client.set`. It is JSON data, and is typically something like:
  
