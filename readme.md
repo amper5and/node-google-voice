@@ -132,6 +132,30 @@ Install node-google-voice via npm:
 			})
 		}
 	});
+	
+The above approach sends a 'star' request to Google Voice for *each* message. This may result in too much network traffic. A much more efficient way would be to store the message ids in an Array and issue the 'star' request once:
+	
+	client.get('search',{query: 'mom', limit:Infinity}, function(error, response){
+		if(error){
+			console.log('Error: ', error);
+		}else{
+			var idArray = [];
+			response.messages.forEach(function(msg){
+				var idArray.push(msg.id);
+				
+				if(!!~msg.labels.indexOf('voicemail')){
+					var fileName = msg.id + '.mp3';
+					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
+						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
+					});
+				}
+			});
+			
+			client.set('star',{id:idArray});
+		}
+	});
+
+This results in only TWO requests being sent to Google Voice.
 
 ###### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
 
@@ -187,7 +211,7 @@ The GV object has the following properties:
 Google Voice client instances are created in the following manner
 
 	var GV = require('google-voice');
-	var voiceClient = new GV.Client(options);
+	var client = new GV.Client(options);
 	
 where `options` is an Object with the following properties:
 
@@ -489,7 +513,7 @@ Some callbacks have a response from Google in the `body`. These include callback
 * `{ ok: false, data: { code: 20 } }`. 
 * `{"ok":false,"error":"Can't edit text of non-voicemail call #A#####AA$$$A$$$$A$$$$A###AAA###A#A####AAA#AA","errorCode":84}`
 	
-At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples below show how this can be done.
+At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples show how this can be done.
 
 
 ### TODO
