@@ -321,7 +321,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 			Note that the `length` of the Array may be equal to OR less than `options.limit`. It will be LESS, if there are less messages matching the request.
 			
 			Properties added by node-google-voice to some messages:
-			* `url` (String, only for voicemails): the url of the message audio
+			* `url` (String, only for voicemails and recordings): the url of the message audio
 			* `thread` (Array, only for texts): the conversation thread, containing Objects with the following properties
 				* `from` (String)
 				* `time` (String)
@@ -518,6 +518,7 @@ At this time, node-google-voice makes no attempts to parse these responses, beca
 
 ### TODO
 * allow changing of various Google Voice settings
+* retrieve messages by id, not just by label
 * retrieve contacts
 * a schedule plugin to use Google Calendar to automatically place calls or send texts
 

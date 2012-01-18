@@ -419,7 +419,7 @@ function processMessages(messages, html){
 				});
 			});
 		}
-		if(isMessage(msg,'voicemail')){
+		if(isMessage(msg,'voicemail') || isMessage(msg,'recorded')){
 			msg.url = voicemailMp3BaseUrl + msgId;
 		}
 		
