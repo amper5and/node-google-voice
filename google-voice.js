@@ -38,19 +38,7 @@ var STATUSES = {
 	HTTP_ERROR: 200
 };
 
-
-
 function noop(){};
-
-function copyOneLevel(obj){
-	var newobj = {};
-	
-	for(var variable in obj){
-		newobj[variable] = obj[variable];
-	}
-	
-	return newobj;
-};
 
 function is(variable,type){
 	if(!variable){
@@ -154,8 +142,6 @@ function validateRequest(methods, method, options){
 	
 	return STATUSES.NO_ERROR;
 };
-
-exports.STATUSES = copyOneLevel(STATUSES);
 
 exports.Client=function(options,callback){
 	callback = callback || noop;
@@ -644,10 +630,12 @@ exports.Client.prototype.getCounts = function(callback){
 	var gv = this;
 	callback = callback || noop;
 	getXMLPage(gv,{path:'/inbox/recent/'},function(error, json, httpResponse, body, xmlObject, err){
-		if(!error){
+		if(error){
+			callback(error, null, httpResponse, body, xmlObject, err);
+		}else{
 			gv.unreadCounts = json.unreadCounts;
+			callback(error, json.unreadCounts || null, httpResponse, body, xmlObject, err);
 		}
-		callback(error, json.unreadCounts, httpResponse, body, xmlObject, err)
 	});
 };
 
@@ -660,5 +648,19 @@ exports.Client.prototype.getSettings = function(callback){
 			gv.settings = json;
 		}
 		callback(error, json, httpResponse, body, xmlObject, err);
+	});
+};
+
+// GET MESSAGE BY ID
+exports.Client.prototype.getMessageById = function(id,callback){
+	var gv = this;
+	gv.get('all',{limit:Infinity},function(err, response){
+		if(err){
+			callback(err)
+		}else if(response.messages && response.messages.length){
+			for(var i = 0; i)
+		}else{
+			callback(err, null);
+		}
 	});
 };
