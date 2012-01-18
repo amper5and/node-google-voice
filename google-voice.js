@@ -38,6 +38,28 @@ var STATUSES = {
 	HTTP_ERROR: 200
 };
 
+var statusMap = {};
+Object.keys(STATUSES).forEach(function (key) {
+  var val = STATUSES[key];
+  statusMap[val] = key;
+});
+
+function GoogleVoiceError(code) {
+  this.name = 'GvError';
+  this.code = code;
+  this.message = statusMap[code];
+  this.stack = (new Error()).stack;
+}
+GoogleVoiceError.prototype = new Error();
+GoogleVoiceError.prototype.name = 'GoogleVoiceError';
+
+function getError(code) {
+  if (!code) {
+    return null;
+  }
+  return new GoogleVoiceError(code);
+}
+
 function noop(){};
 
 function is(variable,type){
@@ -50,7 +72,7 @@ function is(variable,type){
 function getRnrse(gv, callback){
 	gvrequest(gv, null, function(error, httpResponse, body, err){
 		if(error){
-			callback(STATUSES.GET_RNRSE_ERROR, null, httpResponse, body, error);
+			callback(getError(STATUSES.GET_RNRSE_ERROR), null, httpResponse, body, error);
 		}else{
 			try{
 				var doc = jsdom.jsdom(body);
@@ -58,7 +80,7 @@ function getRnrse(gv, callback){
 			}catch(e){
 				var rnrse = null;
 			}
-			callback(rnrse ? STATUSES.NO_ERROR : STATUSES.GET_RNRSE_ERROR, rnrse, httpResponse, body);
+			callback(rnrse ? getError(STATUSES.NO_ERROR) : getError(STATUSES.GET_RNRSE_ERROR), rnrse, httpResponse, body);
 		}
 	});
 };
@@ -76,7 +98,7 @@ function gvrequest(gv,options,callback){
 		if(!gv.config.rnr_se){
 			getRnrse(gv, function(error, rnrse, httpResponse, body, err){
 				if(error){
-					callback(STATUSES.GET_RNRSE_ERROR, httpResponse, body);
+					callback(getError(STATUSES.GET_RNRSE_ERROR), httpResponse, body);
 				}else{
 					gv.config = gv.config || {};
 					gv.config.rnr_se = rnrse;
@@ -110,37 +132,37 @@ function gvrequest(gv,options,callback){
 	
 	request(requestOptions,function(error,response,body){
 		if(error){
-			callback(STATUSES.REQUEST_ERROR, response, body, error);
+			callback(getError(STATUSES.REQUEST_ERROR), response, body, error);
 		}else if(response.statusCode === 401){
 			if(gv._.authAttempts < (gv._.maxAuthAttempts || maxAuthAttempts)){
 				gv.auth.loginWithCB(function(err){
 					if(err){
-						callback(STATUSES.GOOGLE_CLIENTLOGIN_ERROR, response, body, err);
+						callback(getError(STATUSES.GOOGLE_CLIENTLOGIN_ERROR), response, body, err);
 					}else{
 						gvrequest(gv,options,callback);
 					}
 				});
 				gv._.authAttempts++;
 			}else{
-				callback(STATUSES.AUTHENTICATION_ERROR, response,body);
+				callback(getError(STATUSES.AUTHENTICATION_ERROR), response,body);
 			}
 		}else if(response.statusCode != 200){
-			callback(STATUSES.HTTP_ERROR, response, body);
+			callback(getError(STATUSES.HTTP_ERROR), response, body);
 		}else{
-			callback(STATUSES.NO_ERROR, response, body);
+			callback(getError(STATUSES.NO_ERROR), response, body);
 		}
 	});
 };
 
 function validateRequest(methods, method, options){
-	if(!is(method,'string') || !methods[method]){ return STATUSES.INVALID_METHOD; }
+	if(!is(method,'string') || !methods[method]){ return getError(STATUSES.INVALID_METHOD); }
 	
 	var method = methods[method];
 	for(var opt in method.options){
-		if(method.options[opt].demand && !options[opt]){ return STATUSES.MISSING_REQUIRED_PARAMETER ;}
+		if(method.options[opt].demand && !options[opt]){ return getError(STATUSES.MISSING_REQUIRED_PARAMETER) ;}
 	}
 	
-	return STATUSES.NO_ERROR;
+	return getError(STATUSES.NO_ERROR);
 };
 
 exports.Client=function(options,callback){
@@ -275,7 +297,7 @@ var getMethods = {
 		handler: function(options, callback){
 			options.path = this.path;
 			options.query = {q: options.query};
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	}
 };
@@ -323,7 +345,7 @@ function getMessages(gv,options,callback){
 		var startIndex = options.start - firstIndex;
 		
 		if(options.start > json.totalSize){
-			callback(STATUSES.OUT_OF_BOUND_LIMIT, null, json, httpResponse, body, xml2jsResult);
+			callback(getError(STATUSES.OUT_OF_BOUND_LIMIT), null, json, httpResponse, body, xml2jsResult);
 			return;
 		}
 		
@@ -340,7 +362,7 @@ function getMessages(gv,options,callback){
 				if(pagesGot===pagesToGet){
 					messages.sort(sortMessages);
 					messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
-					callback(STATUSES.NO_ERROR, {messages: messages, total: json2.totalSize});
+					callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json2.totalSize});
 				}
 			});
 		}
@@ -360,13 +382,13 @@ function getXMLPage(gv,options,callback){
 			var parser = new xml2js.Parser();
 			parser.parseString(body,function(err,xml){
 				if(err){
-					callback(STATUSES.XML2JS_ERROR, null, httpResponse, body, xml, err)
+					callback(getError(STATUSES.XML2JS_ERROR), null, httpResponse, body, xml, err)
 				}else{
 					var json = getJSONfromXML(xml);
 					if(json){
-						callback(STATUSES.NO_ERROR, json, httpResponse, body, xml);
+						callback(getError(STATUSES.NO_ERROR), json, httpResponse, body, xml);
 					}else{
-						callback(STATUSES.PARSE_ERROR, null, httpResponse, body, xml);
+						callback(getError(STATUSES.PARSE_ERROR), null, httpResponse, body, xml);
 					}
 				}
 			});
@@ -438,8 +460,8 @@ exports.Client.prototype.download = function(options, callback){
 	callback = callback || noop;
 	var id = options.id || options || null;
 	
-	if(!id){ callback(STATUSES.MISSING_REQUIRED_PARAMETER); return; }
-	if(!is(id,'string')){  callback(STATUSES.INVALID_MESSAGE_ID); return; }
+	if(!id){ callback(getError(STATUSES.MISSING_REQUIRED_PARAMETER)); return; }
+	if(!is(id,'string')){  callback(getError(STATUSES.INVALID_MESSAGE_ID)); return; }
 	
 	var requestOptions = {
 		uri: voicemailMp3BaseUrl + id,
@@ -452,10 +474,10 @@ exports.Client.prototype.download = function(options, callback){
 		}else{
 			if(options.hasOwnProperty('file')){
 				fs.writeFile(new String(options.file), body, function(err){
-					callback(err ? STATUSES.FILE_ERROR : STATUSES.NO_ERROR, httpResponse, body, err);
+					callback(err ? getError(STATUSES.FILE_ERROR) : getError(STATUSES.NO_ERROR), httpResponse, body, err);
 				});
 			}else{
-				callback(STATUSES.NO_ERROR, httpResponse, body)
+				callback(getError(STATUSES.NO_ERROR), httpResponse, body)
 			}
 		}
 	})
@@ -524,23 +546,23 @@ var setMethods = {
 		options: { note: {demand: true}},
 		handler: function(options, requestOptions){
 			if(is(options.id,'array')){
-				return STATUSES.CANNOT_SET_MULTIPLE_MSGS;
+				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query = {
 				id: options.id,
 				note: options.note
 			};
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	},
 	deleteNote: {
 		path: '/inbox/deletenote/',
 		handler: function(options, requestOptions){
 			if(is(options.id,'array')){
-				return STATUSES.CANNOT_SET_MULTIPLE_MSGS;
+				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query = {id: options.id };
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	},
 	saveTranscript: {
@@ -548,23 +570,23 @@ var setMethods = {
 		options: { transcript: { demand: true}},
 		handler: function(options, requestOptions){
 			if(is(options.id,'array')){
-				return STATUSES.CANNOT_SET_MULTIPLE_MSGS;
+				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  {
 				callId: options.id,
 				trans: options.transcript
 			};
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	},
 	restoreTranscript: {
 		path: '/inbox/restoreTranscript/',
 		handler: function(options, requestOptions){
 			if(is(options.id,'array')){
-				return STATUSES.CANNOT_SET_MULTIPLE_MSGS;
+				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  { callId: options.id };
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	},
 	forward: {
@@ -577,7 +599,7 @@ var setMethods = {
 		},
 		handler: function(options, requestOptions){
 			if(is(options.id,'array')){
-				return STATUSES.CANNOT_SET_MULTIPLE_MSGS;
+				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  {
 				id: options.id,
@@ -586,7 +608,7 @@ var setMethods = {
 				body: options.body || '',
 				includeLink: options.link ? '1' : '0'
 			};
-			return STATUSES.NO_ERROR;
+			return getError(STATUSES.NO_ERROR);
 		}
 	}
 };
@@ -595,7 +617,7 @@ exports.Client.prototype.set = function(type, options, callback){
 	var gv = this;
 	callback = callback || noop;
 	if(!options.id){
-		callback(STATUSES.MISSING_REQUIRED_PARAMETER);
+		callback(getError(STATUSES.MISSING_REQUIRED_PARAMETER));
 		return;
 	}
 	var status = validateRequest(setMethods, type, options);
@@ -648,19 +670,5 @@ exports.Client.prototype.getSettings = function(callback){
 			gv.settings = json;
 		}
 		callback(error, json, httpResponse, body, xmlObject, err);
-	});
-};
-
-// GET MESSAGE BY ID
-exports.Client.prototype.getMessageById = function(id,callback){
-	var gv = this;
-	gv.get('all',{limit:Infinity},function(err, response){
-		if(err){
-			callback(err)
-		}else if(response.messages && response.messages.length){
-			for(var i = 0; i)
-		}else{
-			callback(err, null);
-		}
 	});
 };
