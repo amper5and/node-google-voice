@@ -201,8 +201,8 @@ Each GV.Client instance has the following properties and methods:
 		* email
 		* password
 		* rnr_se
-	* settings
 	* unreadCounts
+* STATUSES
 
 
 ### Instantiate a Google Voice client: new GV.Client(options)
@@ -337,10 +337,10 @@ There is also a `.getCounts(callback)` method to do this manually. It takes one 
 	* `error` (GoogleVoiceError)
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
 	
+	
 
 
-
-### Downloading voicemails and recorded calls: GV.Client.download(id,callback), GV.Client.download(options,callback)
+### Downloading voicemails and recorded calls: GV.Client.download(id, callback), GV.Client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
 * id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
