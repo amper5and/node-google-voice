@@ -679,12 +679,5 @@ exports.Client.prototype.getCounts = function(callback){
 exports.Client.prototype.getSettings = function(callback){
 	var gv = this;
 	callback = callback || noop;
-	getXMLPage(gv,{path:'/settings/tab/settings'},function(error, json, httpResponse, body, xmlObject, err){
-		if(error){
-			callback(error, null, httpResponse, body, xmlObject, err);
-		}else{
-			gv.settings = json;
-			callback(error, json, httpResponse, body, xmlObject, err);
-		}
-	});
+	getXMLPage(gv,{path:'/settings/tab/settings'},callback);
 };
