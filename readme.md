@@ -188,11 +188,11 @@ This results in only TWO requests being sent to Google Voice.
 
 
 ### API
-The GV object has the following properties:
+Each GV.Client instance has the following properties and methods:
 
 * Client
 	* connect(method, options, callback)
-	* get(type, options, callback)
+	* get(type, null/options, callback)
 	* set(type, options, callback)
 	* download(id/options, callback)
 	* getCounts(callback)
@@ -203,7 +203,6 @@ The GV object has the following properties:
 		* rnr_se
 	* settings
 	* unreadCounts
-* STATUSES
 
 
 ### Instantiate a Google Voice client: new GV.Client(options)

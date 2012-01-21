@@ -70,10 +70,10 @@ function is(variable,type){
 	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
 };
 
-function getRnrse(gv, callback){
-	gvrequest(gv, null, function(error, httpResponse, body, err){
+function getRnrse(gv, callback){ //callback(error, rnrse, httpResponse, body)
+	gvrequest(gv, null, function(error, httpResponse, body){
 		if(error){
-			callback(getError(STATUSES.GET_RNRSE_ERROR), null, httpResponse, body, error);
+			callback(getError(STATUSES.GET_RNRSE_ERROR), null, httpResponse, body);
 		}else{
 			try{
 				var doc = jsdom.jsdom(body);
@@ -87,6 +87,17 @@ function getRnrse(gv, callback){
 };
 
 var maxAuthAttempts = 2;
+var default_ = {
+	maxAuthAttempts: maxAuthAttempts,
+	authAttempts: 0
+};
+
+function get_(gv){
+	gv._ = gv._ || default_;
+	gv._.maxAuthAttempts = gv._.maxAuthAttempts || default_.maxAuthAttempts;
+	gv._.authAttempts = gv._.authAttempts || default_.authAttempts;
+};
+
 function gvrequest(gv,options,callback){
 	options = options || {};
 	var query = options.query || {};
@@ -131,11 +142,13 @@ function gvrequest(gv,options,callback){
 		requestOptions.encoding = options.encoding;
 	}
 	
+	get_(gv);
+	
 	request(requestOptions,function(error,response,body){
 		if(error){
 			callback(getError(STATUSES.REQUEST_ERROR), response, body, error);
 		}else if(response.statusCode === 401){
-			if(gv._.authAttempts < (gv._.maxAuthAttempts || maxAuthAttempts)){
+			if(gv._.authAttempts < gv._.maxAuthAttempts){
 				gv.auth.loginWithCB(function(err){
 					if(err){
 						callback(getError(STATUSES.GOOGLE_CLIENTLOGIN_ERROR), response, body, err);
