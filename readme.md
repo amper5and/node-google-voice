@@ -1,3 +1,6 @@
+# node-google-voice
+http://amper5and.github.com/node-google-voice
+
 ## What is it?
 It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
 It currently allows you to:
@@ -213,7 +216,7 @@ Each GV.Client instance has the following properties and methods:
 * STATUSES
 
 
-### Instantiate a Google Voice client: new GV.Client(options)
+### new GV.Client(options)
 
 Google Voice client instances are created in the following manner
 
@@ -236,7 +239,7 @@ where `options` is an Object with the following properties:
 
 
 
-### GV.Client.connect(method, options, callback)
+### client.connect(method, options, callback)
 This is the common method for texting, calling, and canceling calls. The parameters are:
 
 * `method` (String, required): one of 'call', 'sms', or 'cancel'
@@ -274,7 +277,7 @@ This method cancels the current outgoing call before it is connected. No options
 
 
 
-### GV.Client.get(type, options, callback)
+### client.get(type, options, callback)
 This is the common method for fetching Google Voice messages, whether they are texts, voicemails, missed calls, etc..
 
 * `type` (String, required): Corresponds to the standard Google Voice labels. Can be one of the following:
@@ -336,7 +339,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 
 
 
-### GV.Client.getCounts(callback)
+### client.getCounts(callback)
 
 Every time `.get()` is used, the client's `unreadCounts` property is updated with the latest unread count for each label in Google Voice.
 There is also a `client.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
@@ -348,7 +351,7 @@ There is also a `client.getCounts(callback)` method to do this manually. It take
 	
 
 
-### GV.Client.download(id, callback), GV.Client.download(options,callback)
+### client.download(id, callback), GV.Client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
 * id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
@@ -360,7 +363,7 @@ These two methods allow you to download the audio recording of voicemails and re
 	* httpResponse (Http.ClientResponse)
 	* body (Buffer) - the binary audio data
 
-### GV.Client.set(type, options, callback)
+### client.set(type, options, callback)
 This is the common setter method that manipulates GV messages on the server. Arguments are:
 
 * `type` (String, required)
@@ -400,7 +403,7 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). 
 	* `body` (String): the response from Google Voice for the request. See 'Google Responses' below.
 
-### GV.Client.getSettings(callback)
+### client.getSettings(callback)
 Method for fetching Google Voice settings
 
 * `callback` (Function(error, settings))
