@@ -299,6 +299,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 	```
 	
 * `options` (Object, required/null): REQUIRED when `type` is search. Optional otherwise, but must be set to `null`. Can have the following properties:
+
 	* `start` (Number, optional, default is `1`): the index of the first message. An 'OUT_OF_BOUND_LIMIT' error will occur if `start` is greater than the number of messages for the request.
 	* `limit` (Number, optional, default is variable): maximum number of messages to return. The default is whatever Google's `resultsPerPage` value is (at the time of this writing it's 10). Set this to `Infinity` to retrieve ALL messages pertaining to the request. 
 	* `query` (String, required for type=='search'): The search function is entirely implemented by Google, so the search results are the same as would be returned by searching from the Google Voice web interface.
@@ -351,7 +352,7 @@ There is also a `client.getCounts(callback)` method to do this manually. It take
 	
 
 
-### client.download(id, callback), GV.Client.download(options,callback)
+### client.download(id, callback), client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
 * id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
