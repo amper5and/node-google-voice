@@ -297,10 +297,10 @@ This is the common method for fetching Google Voice messages, whether they are t
 		'recorded'
 		'search' // this method REQUIRES a `query` property in `options`
 	```
-	
-* `options` (Object, required/null): REQUIRED when `type` is search. Optional otherwise, but must be set to `null`. Can have the following properties:
 
-	* `start` (Number, optional, default is `1`): the index of the first message. An 'OUT_OF_BOUND_LIMIT' error will occur if `start` is greater than the number of messages for the request.
+
+* `options` (Object, required/null): REQUIRED when `type` is search. Optional otherwise, but must be set to `null`. Can have the following properties:
+	* `start` (Number, optional, default is `1`): the index of the first message. An `OUT_OF_BOUND_LIMIT` error will occur if `start` is greater than the number of messages for the request.
 	* `limit` (Number, optional, default is variable): maximum number of messages to return. The default is whatever Google's `resultsPerPage` value is (at the time of this writing it's 10). Set this to `Infinity` to retrieve ALL messages pertaining to the request. 
 	* `query` (String, required for type=='search'): The search function is entirely implemented by Google, so the search results are the same as would be returned by searching from the Google Voice web interface.
 * `callback` (Function(error, response), required)
