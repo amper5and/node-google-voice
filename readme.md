@@ -36,7 +36,7 @@ Install node-google-voice via npm:
 (In more recent versions of Node, npm is included. See [the npm page](https://github.com/isaacs/npm) for information on installing npm with older versions of Node.)
 
 ## Examples
-### Create a GV.Client instance
+### Create a client instance
 
 	var GV = require('google-voice');
 
@@ -45,7 +45,8 @@ Install node-google-voice via npm:
 		password: 'password'
 	});
 	
-### Get the numbers of unread messages in each GV label
+### Unread counts
+Get the numbers of unread messages in each GV label
 
 	client.getCounts(function(error, counts){
 		if(err){
@@ -56,7 +57,8 @@ Install node-google-voice via npm:
 		console.log(counts);
 	});
 
-### Place a call to 18005551212 using the mobile phone number 1234567890 associated with the GV account
+### Place a call 
+Call 18005551212 using the mobile phone number 1234567890 associated with the GV account
 	
 	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
 		if(error){
@@ -67,7 +69,8 @@ Install node-google-voice via npm:
 	});
 
 
-### Send a text to 18005551212 and 1234567890
+### Send a text
+Text 18005551212 and 1234567890:
 
 	client.connect('sms',{outgoingNumber:['18005551212','1234567890'], text:'Guys, come over for dinner tomorrow!'}, function(error, response, body){
 		var data = JSON.parse(body);
@@ -82,7 +85,8 @@ Install node-google-voice via npm:
 
 	client.connect('cancel');
 
-### Display messages in the inbox, indicating if they have been read or not
+### Get the inbox 
+Display messages in the inbox, indicating if they have been read or not
 
 	client.get('inbox',null,function(error, response){
 		if(error){
@@ -95,7 +99,8 @@ Install node-google-voice via npm:
 		}
 	});
 
-### Retrieve the most recent SMS and display its message thread
+### Show SMS thread
+Retrieve the most recent SMS and display its message thread
 	
 	client.get('sms',{limit:1},function(error, response){
 		if(error){
@@ -115,7 +120,8 @@ Install node-google-voice via npm:
 		}
 	});
 
-### Star all messages to/from/mentioning 'mom' and download any that are voicemails
+### Search, star, and download messages
+Star all messages to/from/mentioning 'mom' and download any that are voicemails
 	
 	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 		if(error){
@@ -157,7 +163,8 @@ The above approach sends a 'star' request to Google Voice for *each* message. Th
 
 This results in only TWO requests being sent to Google Voice.
 
-### Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
+### Update a voicemail transcript
+Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
 
 	client.get('voicemail', null, function(error,response){
 		if(error){
@@ -179,7 +186,8 @@ This results in only TWO requests being sent to Google Voice.
 		
 	});
 
-### Get all the phones associated with the Google Voice account
+### Retrieve settings
+Get all the phones associated with the Google Voice account
 	
 	client.getSettings(function(error, settings){
 		if(error){ console.log('Error: ',error); return; }
@@ -228,7 +236,7 @@ where `options` is an Object with the following properties:
 
 
 
-### Calling and Texting: GV.Client.connect(method, options, callback)
+### GV.Client.connect(method, options, callback)
 This is the common method for texting, calling, and canceling calls. The parameters are:
 
 * `method` (String, required): one of 'call', 'sms', or 'cancel'
@@ -266,7 +274,7 @@ This method cancels the current outgoing call before it is connected. No options
 
 
 
-### Retrieving Google Voice Messages: GV.Client.get(type, options, callback)
+### GV.Client.get(type, options, callback)
 This is the common method for fetching Google Voice messages, whether they are texts, voicemails, missed calls, etc..
 
 * `type` (String, required): Corresponds to the standard Google Voice labels. Can be one of the following:
@@ -328,10 +336,10 @@ This is the common method for fetching Google Voice messages, whether they are t
 
 
 
-### Updating unread counts: GV.Client.getCounts(callback)
+### GV.Client.getCounts(callback)
 
 Every time `.get()` is used, the client's `unreadCounts` property is updated with the latest unread count for each label in Google Voice.
-There is also a `.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
+There is also a `client.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
 
 * callback (Function(error, counts)) where
 	* `error` (GoogleVoiceError)
@@ -340,7 +348,7 @@ There is also a `.getCounts(callback)` method to do this manually. It takes one 
 	
 
 
-### Downloading voicemails and recorded calls: GV.Client.download(id, callback), GV.Client.download(options,callback)
+### GV.Client.download(id, callback), GV.Client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
 * id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
@@ -352,7 +360,7 @@ These two methods allow you to download the audio recording of voicemails and re
 	* httpResponse (Http.ClientResponse)
 	* body (Buffer) - the binary audio data
 
-### Modifying Google Voice messages: GV.Client.set(type, options, callback)
+### GV.Client.set(type, options, callback)
 This is the common setter method that manipulates GV messages on the server. Arguments are:
 
 * `type` (String, required)
@@ -392,7 +400,9 @@ This is the common setter method that manipulates GV messages on the server. Arg
 	* `response` (Http.ClientResponse): an instance of Node's [http.ClientResponse](http://nodejs.org/docs/v0.4.7/api/http.html#http.ClientResponse). 
 	* `body` (String): the response from Google Voice for the request. See 'Google Responses' below.
 
-### Getting Google Voice settings: GV.Client.getSettings(callback)
+### GV.Client.getSettings(callback)
+Method for fetching Google Voice settings
+
 * `callback` (Function(error, settings))
 	* `error` (GoogleVoiceError)
 	* `callback` (Function(error, settings)): `settings` is the settings object from GV. At the time of this writing, it had the following form:
