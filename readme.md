@@ -521,7 +521,7 @@ Some callbacks have a response from Google in the `body`. These include callback
 * `{ ok: true, data: { code: 0 } }`
 * `{ ok: false, error: 'Cannot complete call.' }`
 * `{ ok: false, data: { code: 20 } }`. 
-* `{"ok":false,"error":"Can't edit text of non-voicemail call #A#####AA$$$A$$$$A$$$$A###AAA###A#A####AAA#AA","errorCode":84}`
+* `{"ok":false,"error": "Can't edit text of non-voicemail call #A#####A####AAA#AA", "errorCode":84}`
 	
 At this time, node-google-voice makes no attempts to parse these responses, because the string can change as Google makes changes to how Google Voice works. What is important to note is that there is usually a Boolean `ok` property in the JSON response. This is not parsed by node-google-voice at this time, so the `error` in callback may not reflect whether the request was 'approved' by Google. The end-user may wish to parse this response to see if `body.ok===true` in order to make final decisions on the success or failure of a request. Some of the examples show how this can be done.
 
