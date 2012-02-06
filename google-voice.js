@@ -200,7 +200,7 @@ exports.Client=function(options,callback){
 	};
 };
 
-// CONNECT METHODS =============================================================
+// CONNECT METHODS
 var methods = {};
 methods.sms = {
 	options:{
@@ -271,7 +271,7 @@ exports.Client.prototype.connect=function(method,options,callback){
 	gvrequest(gv,requestOptions,callback);
 };
 
-// GET METHODS =================================================================
+// GET METHODS
 
 var getMethods = {
 	unread: {
@@ -471,7 +471,7 @@ function getField(field,message){
 	return f.trim();
 };
 
-// DOWNLOAD VOICEMAIL  =================================================================
+// DOWNLOAD VOICEMAIL
 var voicemailMp3BaseUrl = 'https://www.google.com/voice/media/send_voicemail/';
 
 exports.Client.prototype.download = function(options, callback){
@@ -502,7 +502,7 @@ exports.Client.prototype.download = function(options, callback){
 	})
 };
 
-// SET METHODS =================================================================
+// SET METHODS
 var setMethods = {
 	read:{
 		path: '/inbox/mark/',
@@ -666,7 +666,7 @@ exports.Client.prototype.set = function(type, options, callback){
 };
 
 
-// UPDATE COUNTS =================================================================
+// UPDATE COUNTS
 exports.Client.prototype.getCounts = function(callback){
 	var gv = this;
 	callback = callback || noop;
@@ -680,9 +680,26 @@ exports.Client.prototype.getCounts = function(callback){
 	});
 };
 
-// SETTINGS =================================================================
+// SETTINGS
 exports.Client.prototype.getSettings = function(callback){
 	var gv = this;
 	callback = callback || noop;
 	getXMLPage(gv,{path:'/settings/tab/settings'},callback);
+};
+
+// GET TIMING OF MESSAGE WORDS
+var timingBaseUrl = 'https://www.google.com/voice/media/transcriptWords?id='
+exports.Client.prototype.getTranscriptTiming = function(id,callback){
+	callback = callback || noop;
+	gvrequest(this,{uri:timingBaseUrl+id},function(error, httpResponse, body){
+		if(error){
+			callback(error, null, httpResponse, body);
+		}else{
+			var times = body.split(' ');
+			times.forEach(function(val,index){
+				times[index] = val*1; // coerce to number
+			});
+			callback(error, times, httpResponse, body);
+		}
+	});
 };

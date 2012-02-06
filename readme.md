@@ -208,6 +208,7 @@ Each GV.Client instance has the following properties and methods:
 	* download(id/options, callback)
 	* getCounts(callback)
 	* getSettings(callback)
+	* getTranscriptTiming(id, callback)
 	* config
 		* email
 		* password
@@ -263,7 +264,7 @@ This is the common method for texting, calling, and canceling calls. The paramet
 	* 7 - Gizmo (may not work, as Google has acquired Gizmo)
 	* 9 - Google Talk
 
-	(Note that information about the phones and phoneTypes on your GV account can be obtained from the `client.settings.phones`, after fetching the settings. See `GV.Client.getSettings` below.)
+	(Note that information about the phones and phoneTypes on your GV account can be obtained with `client.getSettings()`. See below.)
 
 ##### 'sms'
 
@@ -355,14 +356,22 @@ There is also a `client.getCounts(callback)` method to do this manually. It take
 ### client.download(id, callback), client.download(options,callback)
 These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
 
-* id (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
-* options (Object) with the following properties:
-	* id (String, required) - Unique voicemail message id
-	* file (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
-* callback (Function(error, httpResponse, body), optional)
-	* error (GoogleVoiceError)
-	* httpResponse (Http.ClientResponse)
-	* body (Buffer) - the binary audio data
+* `id` (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
+* `options` (Object) with the following properties:
+	* `id` (String, required) - Unique voicemail message id
+	* `file` (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
+* `callback` (Function(error, httpResponse, body), optional)
+	* `error` (GoogleVoiceError)
+	* `httpResponse` (Http.ClientResponse)
+	* `body` (Buffer) - the binary audio data
+
+### client.getTranscriptTiming(id, callback)
+Retrieves the time of each word in the transcript of a voicemail
+
+* `id` (String, required): the unique message id of the voicemail
+* `callback` ( Function(error, times))
+	* `error` (GoogleVoiceError)
+	* `times` (Array) - array containing the times of each word in the voicemail. Times are expressed in milliseconds.
 
 ### client.set(type, options, callback)
 This is the common setter method that manipulates GV messages on the server. Arguments are:
