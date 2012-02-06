@@ -173,9 +173,14 @@ function validateRequest(methods, method, options){
 	
 	var method = methods[method];
 	for(var opt in method.options){
-		if(method.options[opt].demand && !options[opt]){ return getError(STATUSES.MISSING_REQUIRED_PARAMETER) ;}
+		if(!options.hasOwnProperty(opt)){
+			if(method.options[opt].demand){
+				return getError(STATUSES.MISSING_REQUIRED_PARAMETER) ;
+			}else if(method.options[opt].default){
+				options[opt] = method.options[opt].default;
+			}
+		}
 	}
-	
 	return getError(STATUSES.NO_ERROR);
 };
 
