@@ -686,3 +686,16 @@ exports.Client.prototype.getSettings = function(callback){
 	callback = callback || noop;
 	getXMLPage(gv,{path:'/settings/tab/settings'},callback);
 };
+
+exports.Client.prototype.togglePhone = function(id, enable, callback) {
+	var gv = this;
+	callback = callback || noop;
+	gvrequest(gv, {
+	  method: 'POST',
+	  path: '/settings/editDefaultForwarding',
+	  query: {
+	    phoneId: id,
+	    enabled: enable ? 1 : 0
+	  }
+	}, callback);
+};
