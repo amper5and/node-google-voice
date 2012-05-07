@@ -209,10 +209,6 @@ Each GV.Client instance has the following properties and methods:
 	* getCounts(callback)
 	* getSettings(callback)
 	* getTranscriptTiming(id, callback)
-	* config
-		* email
-		* password
-		* rnr_se
 	* unreadCounts
 * STATUSES
 
@@ -229,16 +225,18 @@ where `options` is an Object with the following properties:
 * `email` (String, required) - your Google Voice login email
 * `password` (String, required) - your Google Voice password
 * `rnr_se` (String, optional) - the unique identifier associated with your GV account
-	* The `rnr_se` is some kind of ID created by Google for your Google Voice account. At this time, it can be obtained by logging into the Google Voice web front-end and running the following javascript snippet in the browser window:
+	* The `rnr_se` is some kind of ID created by Google for your Google Voice account. At this time, it can be obtained either by using the `Client.getRNRSE()` method or by logging into the Google Voice web front-end and running the following javascript snippet in the browser window:
 	
-	```javascript
 	javascript:alert(_gcData._rnr_se);
-	```
 	
 	* You only have to get your rnr_se once, because it doesn't appear to change. However, if something does stop working in node-google-voice and you are manually supplying the `rnr_se`, first check that your `rnr_se` hasn't changed.
-	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically. If it fails, a 'GET_RNRSE_ERROR' error will occur.
+	* Internally, the `RNR_SE` is only required by GV for POST requests
+	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically and store it in `Client.config.rnr_se`. If it fails, a 'GET_RNRSE_ERROR' error will occur.
+* `authToken` (String, optional) - a Google ClientLogin authentication token. If login fails using this token, node-google-voice will obtain a new ClientLogin authentication token and store it in `Client.config.authToken`.
 
 
+### client.getRNRSE(callback)
+Allows you to retrieve the unique RNR_SE identifier associated with a GV account. `callback` takes the form of `function(error, rnrse)`. Running this also places the retrieved RNRSE into `client.config.rnr_se`.
 
 ### client.connect(method, options, callback)
 This is the common method for texting, calling, and canceling calls. The parameters are:

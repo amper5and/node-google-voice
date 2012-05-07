@@ -70,22 +70,6 @@ function is(variable,type){
 	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
 };
 
-function getRnrse(gv, callback){ //callback(error, rnrse, httpResponse, body)
-	gvrequest(gv, null, function(error, httpResponse, body){
-		if(error){
-			callback(getError(STATUSES.GET_RNRSE_ERROR), null, httpResponse, body);
-		}else{
-			try{
-				var doc = jsdom.jsdom(body);
-				var rnrse = doc.getElementsByName('_rnr_se')[0].value;
-			}catch(e){
-				var rnrse = null;
-			}
-			callback(rnrse ? getError(STATUSES.NO_ERROR) : getError(STATUSES.GET_RNRSE_ERROR), rnrse, httpResponse, body);
-		}
-	});
-};
-
 var maxAuthAttempts = 2;
 var default_ = {
 	maxAuthAttempts: maxAuthAttempts,
@@ -104,16 +88,14 @@ function gvrequest(gv,options,callback){
 	var method = options.method || 'GET';
 	var uri = options.uri || ( (options.host || 'https://www.google.com/voice') + (options.path || '') ); 
 	var headers = options.headers || {} ;
-	headers.Authorization = 'GoogleLogin auth=' + gv.auth.getAuthId() ;
+	headers.Authorization = 'GoogleLogin auth=' + (gv.auth.getAuthId() || (gv.config ? gv.config.authToken : ''));
 	
 	if(method === 'POST'){
 		if(!gv.config.rnr_se){
-			getRnrse(gv, function(error, rnrse, httpResponse, body, err){
+			gv.getRNRSE(function(error, rnrse, httpResponse, body, err){
 				if(error){
 					callback(getError(STATUSES.GET_RNRSE_ERROR), httpResponse, body);
 				}else{
-					gv.config = gv.config || {};
-					gv.config.rnr_se = rnrse;
 					gvrequest(gv, options, callback);
 				}
 			});
@@ -153,6 +135,8 @@ function gvrequest(gv,options,callback){
 					if(err){
 						callback(getError(STATUSES.GOOGLE_CLIENTLOGIN_ERROR), response, body, err);
 					}else{
+						gv.config = gv.config || {};
+						gv.config.authToken = gv.auth.getAuthId();
 						gvrequest(gv,options,callback);
 					}
 				});
@@ -194,11 +178,36 @@ exports.Client=function(options,callback){
 	if(options.rnr_se){
 		this.config.rnr_se = options.rnr_se;
 	};
+	if(options.authToken){
+		this.config.authToken = options.authToken;
+	}
 	this._ = {
 		maxAuthAttempts: 2,
 		authAttempts: 0
 	};
 };
+
+exports.Client.prototype.getRNRSE = function(callback){
+	var gv = this;
+	callback = callback || noop;
+	gvrequest(gv, null, function(error, httpResponse, body, err){
+		if(error){
+			callback(getError(STATUSES.GET_RNRSE_ERROR), null, httpResponse, body, error);
+		}else{
+			try{
+				var doc = jsdom.jsdom(body);
+				var rnrse = doc.getElementsByName('_rnr_se')[0].value;
+				gv.config = gv.config || {};
+				gv.config.rnr_se = rnrse;
+			}catch(e){
+				var rnrse = null;
+			}
+			callback(rnrse ? getError(STATUSES.NO_ERROR) : getError(STATUSES.GET_RNRSE_ERROR), rnrse, httpResponse, body);
+		}
+	});
+};
+
+
 
 // CONNECT METHODS
 var methods = {};
