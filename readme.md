@@ -201,16 +201,14 @@ Get all the phones associated with the Google Voice account
 ## API
 Each GV.Client instance has the following properties and methods:
 
-* Client
-	* connect(method, options, callback)
-	* get(type, null/options, callback)
-	* set(type, options, callback)
-	* download(id/options, callback)
-	* getCounts(callback)
-	* getSettings(callback)
-	* getTranscriptTiming(id, callback)
-	* unreadCounts
-* STATUSES
+* connect(method, options, callback)
+* get(type, null/options, callback)
+* set(type, options, callback)
+* download(id/options, callback)
+* getCounts(callback)
+* getSettings(callback)
+* getTranscriptTiming(id, callback)
+* unreadCounts
 
 
 ### new GV.Client(options)
