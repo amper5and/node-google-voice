@@ -6,7 +6,10 @@ var clientLogin = require('googleclientlogin'),
 	querystring = require('querystring'),
 	fs = require('fs');
 	
-	
+jsdom.defaultDocumentFeatures = {
+  ProcessExternalResources : false
+};
+		
 clientLogin.GoogleClientLogin.prototype.loginWithCB = function(callback){
 	var clogin=this;
 	var fullCallback=function(err){
