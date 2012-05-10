@@ -663,7 +663,7 @@ exports.Client.prototype.set = function(type, options, callback){
 			method: 'POST',
 			path: setMethods[type].path,
 			query: {
-				messages: is(options.id, 'array') ? options.id.join('&messages=') : options.id
+				messages: options.id
 			}
 		};
 		for(var variable in setMethods[type].post){
