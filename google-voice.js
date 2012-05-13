@@ -368,7 +368,7 @@ function getMessages(gv,options,callback){
 		}	
 		var startPage = Math.ceil(options.start/json.resultsPerPage);
 		var endPage = Math.ceil((options.start - 1 + options.limit)/json.resultsPerPage);
-		if(endPage === Infinity){ endPage = totalPages; }
+		if(endPage === Infinity || endPage > totalPages){ endPage = totalPages; }
 		var pagesToGet = endPage - startPage + 1;
 		var pagesGot = 0;
 		
