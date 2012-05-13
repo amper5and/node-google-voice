@@ -1,4 +1,5 @@
 # node-google-voice
+https://github.com/amper5and/node-google-voice
 
 ## What is it?
 It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
@@ -206,6 +207,7 @@ Get all the phones associated with the Google Voice account
 ## API
 Each GV.Client instance has the following properties and methods:
 
+* getRNRSE(callback)
 * connect(method, options, callback)
 * get(type, null/options, callback)
 * set(type, options, callback)
@@ -233,9 +235,9 @@ where `options` is an Object with the following properties:
 	
 	* You only have to get your `rnr_se` once, because it doesn't appear to change. However, if something does stop working in node-google-voice and you are manually supplying the `rnr_se`, first check that your `rnr_se` hasn't changed.
 	* Internally, the `RNR_SE` is only required by GV for POST requests
-	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically and store it in `Client.config.rnr_se`. If it fails, a `GET_RNRSE_ERROR` error will occur.
+	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically and store it in `Client.config.rnr_se`. 
 * `authToken` (String, optional) - a Google ClientLogin authentication token. If login fails using this token, node-google-voice will obtain a new ClientLogin authentication token and store it in `Client.config.authToken`.
-
+	* Note: As of April 20, 2012, [ClientLogin has been deprecated](https://developers.google.com/accounts/docs/AuthForInstalledApps). As it continues to work for now, node-google-voice will continue to rely on it. I will be investigating other unobtrusive authentication schemes to use with Google Voice. Please report any authentication problems in the issue tracker.
 
 ### client.getRNRSE(callback)
 Allows you to retrieve the unique RNR_SE identifier associated with a GV account. `callback` takes the form of `function(error, rnrse)`. Running this also places the retrieved RNRSE into `client.config.rnr_se`.
