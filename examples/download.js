@@ -1,4 +1,5 @@
 var GV = require('google-voice');
+var fs = require('fs');
 
 var client = new GV.Client({
 	email: 'email@gmail.com',
@@ -14,16 +15,23 @@ client.get('recorded', {limit:5}, function(error, response){
 	}
 	
 	if(!response.messages.length){
+		console.log('No messages found.');
 		return;
 	}
 	
 	response.messages.forEach(function(msg){
-		var fileName = msg.id + '.mp3';
-		client.download({id: msg.id, file: fileName}, function(err, httpResponse, body){
+		client.download(msg.id, function(err, httpResponse, body){
 			if(err){
 				console.log('Error downloading message ', msg.id,':',err);
 			}else{
-				console.log('Downloaded ', fileName);
+				var fileName = msg.id + '.mp3';
+				fs.writeFile(fileName, body, function(error){
+					if(error){
+						console.log('Error saving file ', fileName);
+					}else{
+						console.log('Saved ', fileName);
+					}
+				});
 			}
 		});
 	})

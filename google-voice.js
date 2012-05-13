@@ -489,33 +489,17 @@ function getField(field,message){
 
 // DOWNLOAD VOICEMAIL
 var voicemailMp3BaseUrl = 'https://www.google.com/voice/media/send_voicemail/';
-
-exports.Client.prototype.download = function(options, callback){
-	var gv = this;
+exports.Client.prototype.download = function(id, callback){
 	callback = callback || noop;
-	var id = options.id || options || null;
 	
 	if(!id){ callback(getError(STATUSES.MISSING_REQUIRED_PARAMETER)); return; }
-	if(!is(id,'string')){  callback(getError(STATUSES.INVALID_MESSAGE_ID)); return; }
 	
 	var requestOptions = {
 		uri: voicemailMp3BaseUrl + id,
 		encoding: null
 	};
 	
-	gvrequest(gv, requestOptions, function(error, httpResponse, body){
-		if(error){
-			callback(error, httpResponse, body);
-		}else{
-			if(options.hasOwnProperty('file')){
-				fs.writeFile(new String(options.file), body, function(err){
-					callback(err ? getError(STATUSES.FILE_ERROR) : getError(STATUSES.NO_ERROR), httpResponse, body, err);
-				});
-			}else{
-				callback(getError(STATUSES.NO_ERROR), httpResponse, body)
-			}
-		}
-	})
+	gvrequest(this, requestOptions, callback);
 };
 
 // SET METHODS

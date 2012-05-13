@@ -122,8 +122,8 @@ Retrieve the most recent SMS and display its message thread
 		}
 	});
 
-### Search, star, and download messages
-Star all messages to/from/mentioning 'mom' and download any that are voicemails
+### Search, star
+Star all messages to/from/mentioning 'mom'
 	
 	client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 		if(error){
@@ -131,13 +131,7 @@ Star all messages to/from/mentioning 'mom' and download any that are voicemails
 		}else{
 			response.messages.forEach(function(msg){
 				client.set('star',{id: msg.id});
-				if(!!~msg.labels.indexOf('voicemail')){
-					var fileName = msg.id + '.mp3';
-					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
-						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
-					});
-				}
-			})
+			});
 		}
 	});
 	
@@ -150,13 +144,6 @@ The above approach sends a 'star' request to Google Voice for *each* message. Th
 			var idArray = [];
 			response.messages.forEach(function(msg){
 				var idArray.push(msg.id);
-				
-				if(!!~msg.labels.indexOf('voicemail')){
-					var fileName = msg.id + '.mp3';
-					client.download({id: msg.id, file: fileName}, function(error, httpResponse, body){
-						console.log(error ? 'Error downloading message ' + msg.id : 'Downloaded '+fileName);
-					});
-				}
 			});
 			
 			client.set('star',{id:idArray});
@@ -203,7 +190,7 @@ Each GV.Client instance has the following properties and methods:
 * connect(method, options, callback)
 * get(type, null/options, callback)
 * set(type, options, callback)
-* download(id/options, callback)
+* download(id, callback)
 * getCounts(callback)
 * getSettings(callback)
 * getTranscriptTiming(id, callback)
@@ -346,17 +333,14 @@ There is also a `client.getCounts(callback)` method to do this manually. It take
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties: all, inbox, missed, placed, received, recorded, sms, spam, starred, trash, unread, voicemail
 
 
-### client.download(id, callback), client.download(options,callback)
-These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version can also save the recording to the file system. The arguments are:
+### client.download(id, callback)
+Downloads the audio data of voicemails and recorded calls.The arguments are:
 
 * `id` (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
-* `options` (Object) with the following properties:
-	* `id` (String, required) - Unique voicemail message id
-	* `file` (String, optional) - The file name to use when saving the audio (this will overwrite any identically-named files!!!). If this is omitted, the voicemail will NOT be saved to disk, but only presented to `callback`.
 * `callback` (Function(error, httpResponse, body), optional)
 	* `error` (GoogleVoiceError)
 	* `httpResponse` (Http.ClientResponse)
-	* `body` (Buffer) - the binary audio data
+	* `body` (Buffer) - the binary audio data. At the time of this writing, this was in MP3 format.
 
 ### client.getTranscriptTiming(id, callback)
 Retrieves the time of each word in the transcript of a voicemail
