@@ -367,7 +367,7 @@ function getMessages(gv,options,callback){
 			return;
 		}	
 		var startPage = Math.ceil(options.start/json.resultsPerPage);
-		var endPage = Math.ceil((options.start + options.limit)/json.resultsPerPage);
+		var endPage = Math.ceil((options.start - 1 + options.limit)/json.resultsPerPage);
 		if(endPage === Infinity){ endPage = totalPages; }
 		var pagesToGet = endPage - startPage + 1;
 		var pagesGot = 0;
@@ -380,22 +380,26 @@ function getMessages(gv,options,callback){
 			return;
 		}
 		
+		function retreivedPage(status, json, httpResponse, body, xml2jsResult, err){
+			pagesGot++;
+			if(status){ callback(status, null, json, httpResponse, body, xml2jsResult, err); return; }
+			messages = messages.concat(processMessages(json.messages, xml2jsResult.html));
+			if(pagesGot===pagesToGet){
+				messages.sort(sortMessages);
+				messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
+				callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json.totalSize});
+			}
+		}
+		
 		options.query = options.query || {};
 		var messages = [];
+		if(startPage==1){ // already retreived the first page, so use it
+			retreivedPage(status,json,httpResponse,body,xml2jsResult,err);
+			startPage++;
+		}
 		for(var i=startPage; i<=endPage; i++){
 			options.query.page = 'p' + i;
-			getXMLPage(gv, options, function(status2, json2, httpResponse2, body2, xml2jsResult2, err2){
-				pagesGot++;
-				if(status2){ callback(status2, null, json2, httpResponse2, body2, xml2jsResult2, err2); return; }
-				
-				messages = messages.concat(processMessages(json2.messages, xml2jsResult2.html));
-				
-				if(pagesGot===pagesToGet){
-					messages.sort(sortMessages);
-					messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
-					callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json2.totalSize});
-				}
-			});
+			getXMLPage(gv, options, retreivedPage);
 		}
 	});
 };
