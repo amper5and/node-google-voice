@@ -73,9 +73,8 @@ function is(variable,type){
 	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
 };
 
-var maxAuthAttempts = 2;
 var default_ = {
-	maxAuthAttempts: maxAuthAttempts,
+	maxAuthAttempts: 2,
 	authAttempts: 0
 };
 
@@ -184,10 +183,7 @@ exports.Client=function(options,callback){
 	if(options.authToken){
 		this.config.authToken = options.authToken;
 	}
-	this._ = {
-		maxAuthAttempts: 2,
-		authAttempts: 0
-	};
+	this._ = default_;
 };
 
 exports.Client.prototype.getRNRSE = function(callback){
@@ -673,7 +669,6 @@ exports.Client.prototype.getCounts = function(callback){
 		if(error){
 			callback(error, null, httpResponse, body, xmlObject, err);
 		}else{
-			gv.unreadCounts = json.unreadCounts;
 			callback(error, json.unreadCounts || null, httpResponse, body, xmlObject, err);
 		}
 	});

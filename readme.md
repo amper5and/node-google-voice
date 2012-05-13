@@ -51,8 +51,8 @@ Install node-google-voice via npm:
 Get the numbers of unread messages in each GV label
 
 	client.getCounts(function(error, counts){
-		if(err){
-			console.log('Error: ',err);
+		if(error){
+			console.log('Error: ',error);
 			return;
 		}
 		
@@ -63,10 +63,11 @@ Get the numbers of unread messages in each GV label
 Call 18005551212 using the mobile phone number 1234567890 associated with the GV account
 	
 	client.connect('call',{outgoingNumber:'18005551212', forwardingNumber:'1234567890', phoneType:2}, function(error, response, body){
-		if(error){
-			console.log('Error: ', error);
+		var data = JSON.parse(body);
+		if(error || !data.ok){
+			console.log('Error: ', error, ', response: ', body);
 		}else{
-			console.log('Call placed with status: ',body);
+			console.log('Call placed successfully.');
 		}
 	});
 
@@ -94,7 +95,7 @@ Display messages in the inbox, indicating if they have been read or not
 		if(error){
 			console.log('Error: ',error);
 		}else{
-			console.log('There are',response.total,'messages in the inbox. The last', response.messages.length, 'are:');
+			console.log('There are',response.total,'messages in the inbox. The last', response.messages.length, ' messages are:');
 			response.messages.forEach(function(msg, index){
 				console.log(msg.isRead ? ' ' : '*', (index+1)+'.', msg.displayStartDateTime, msg.displayNumber);
 			});
@@ -152,6 +153,24 @@ The above approach sends a 'star' request to Google Voice for *each* message. Th
 
 This results in only TWO requests being sent to Google Voice.
 
+### Download a voicemail to a file
+	
+	var fs = require('fs');
+	
+	client.download(id, function(error, httpResponse, data){
+		if(error){
+			console.log('Error downloading message - Error: ', error);
+		}else{
+			fs.writeFile(id + '.mp3', data, function(err){
+				if(err){
+					console.log('Error writing file ', id, '.mp3 - Error: ', err);
+				}else{
+					console.log('Message saved to ', id, '.mp3');
+				}
+			});
+		}
+	});
+	
 ### Update a voicemail transcript
 Update the transcript of the most recent voicemail and donate it to Google so that the good folks there can improve their transcribing feature
 
