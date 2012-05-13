@@ -5,7 +5,7 @@ var client = new GV.Client({
 	password: 'password'
 });
 
-// Star all messages to/from/mentioning 'mom' and download any that are voicemails
+// Star all messages to/from/mentioning 'mom' 
 client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 	if(error){
 		console.log('Error: ', error);
@@ -24,7 +24,6 @@ client.get('search',{query: 'mom', limit:Infinity}, function(error,response){
 
 
 // A more efficient approach, issuing one 'star' request for all the messages at once, instead of individual requests as above.
-// (Note that downloading cannot be achieved with one request. It will fail if the `id` property is an Array)
 client.get('search',{query: 'mom', limit:Infinity}, function(error, response){
 	if(error){
 		console.log('Error: ', error);
