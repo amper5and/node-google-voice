@@ -194,7 +194,6 @@ Each GV.Client instance has the following properties and methods:
 * getCounts(callback)
 * getSettings(callback)
 * getTranscriptTiming(id, callback)
-* unreadCounts
 
 
 ### new GV.Client(options)
@@ -290,6 +289,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 	* `error` (GoogleVoiceError)
 	* `response` (Object): has the following properties:
 		* `total` (Number): the total number of messages matching this request
+		* `unreadCounts` (Object): contains the numbers of unread messages in each standard Google Voice label.
 		* `messages` (Array): an array of Google Voice message objects, sorted by `startTime`. The properties of each message object are whatever Google Voice is supplying at the time of the request. A few properties are added by node-google-voice (indicated below). At the time of this writing, an example message looked like this:	
 			
 			```javascript	
@@ -325,8 +325,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 
 ### client.getCounts(callback)
 
-Every time `.get()` is used, the client's `unreadCounts` property is updated with the latest unread count for each label in Google Voice.
-There is also a `client.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
+Every time `.get()` is used, the `unreadCounts` property of the response gives information on the number of unread messages in each Google Voice label. There is also a `client.getCounts(callback)` method to do this manually. It takes one argument, `callback`:
 
 * callback (Function(error, counts)) where
 	* `error` (GoogleVoiceError)

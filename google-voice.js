@@ -358,7 +358,6 @@ function getMessages(gv,options,callback){
 	getXMLPage(gv,options,function(status, json, httpResponse, body, xml2jsResult, err){
 		if(status){ callback(status, null, json, httpResponse, body, xml2jsResult, err); return; }
 		
-		gv.unreadCounts = json.unreadCounts;
 		options.limit = options.limit || json.resultsPerPage;
 		
 		var totalPages = Math.ceil(json.totalSize/json.resultsPerPage);
@@ -387,7 +386,7 @@ function getMessages(gv,options,callback){
 			if(pagesGot===pagesToGet){
 				messages.sort(sortMessages);
 				messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
-				callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json.totalSize});
+				callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json.totalSize, unreadCounts: json.unreadCounts});
 			}
 		}
 		
