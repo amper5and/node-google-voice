@@ -1,5 +1,4 @@
 # node-google-voice
-http://amper5and.github.com/node-google-voice
 
 ## What is it?
 It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
@@ -23,7 +22,7 @@ It currently allows you to:
 
 ## Dependencies
 
-* [node.js](http://nodejs.org) - node-google-voice has been tested with Node 0.6.7. YMMV with other versions. 
+* [node.js](http://nodejs.org) 
 * [googleclientlogin](https://github.com/Ajnasz/GoogleClientLogin) - used for authentication to the Google Voice service
 * [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js) - used for extracting JSON & HTML data from Google Voice XML responses
 * [jsdom](https://github.com/tmpvar/jsdom) - for extracting SMS threads from GV data
@@ -225,11 +224,11 @@ where `options` is an Object with the following properties:
 * `rnr_se` (String, optional) - the unique identifier associated with your GV account
 	* The `rnr_se` is some kind of ID created by Google for your Google Voice account. At this time, it can be obtained either by using the `Client.getRNRSE()` method or by logging into the Google Voice web front-end and running the following javascript snippet in the browser window:
 	
-	javascript:alert(_gcData._rnr_se);
+		`javascript:alert(_gcData._rnr_se);`
 	
-	* You only have to get your rnr_se once, because it doesn't appear to change. However, if something does stop working in node-google-voice and you are manually supplying the `rnr_se`, first check that your `rnr_se` hasn't changed.
+	* You only have to get your `rnr_se` once, because it doesn't appear to change. However, if something does stop working in node-google-voice and you are manually supplying the `rnr_se`, first check that your `rnr_se` hasn't changed.
 	* Internally, the `RNR_SE` is only required by GV for POST requests
-	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically and store it in `Client.config.rnr_se`. If it fails, a 'GET_RNRSE_ERROR' error will occur.
+	* If you supply `rnr_se`, you will save node-google-voice one extra HTTP request on first authentication. If you don't supply it, node-google-voice will make an attempt to get it automatically and store it in `Client.config.rnr_se`. If it fails, a `GET_RNRSE_ERROR` error will occur.
 * `authToken` (String, optional) - a Google ClientLogin authentication token. If login fails using this token, node-google-voice will obtain a new ClientLogin authentication token and store it in `Client.config.authToken`.
 
 
@@ -344,13 +343,11 @@ There is also a `client.getCounts(callback)` method to do this manually. It take
 
 * callback (Function(error, counts)) where
 	* `error` (GoogleVoiceError)
-	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties:
-	
-	
+	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties: all, inbox, missed, placed, received, recorded, sms, spam, starred, trash, unread, voicemail
 
 
 ### client.download(id, callback), client.download(options,callback)
-These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version also can save the recording to the file system. The arguments are:
+These two methods allow you to download the audio recording of voicemails and recorded calls. Both versions download and present the binary data to `callback`. The second version can also save the recording to the file system. The arguments are:
 
 * `id` (String): the unique message id of the voicemail or recording. It is up to you to make sure that the id you supply is for a voicemail or recording; otherwise you will get an 'HTTP_ERROR'
 * `options` (Object) with the following properties:
