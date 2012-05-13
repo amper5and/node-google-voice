@@ -711,11 +711,18 @@ exports.Client.prototype.getTranscriptTiming = function(id,callback){
 		if(error){
 			callback(error, null, httpResponse, body);
 		}else{
-			var times = body.split(' ');
-			times.forEach(function(val,index){
-				times[index] = val*1; // coerce to number
+			var parser = new xml2js.Parser();
+			parser.parseString(body,function(err,xml){
+				if(err){
+					callback(getError(STATUSES.XML2JS_ERROR), null, httpResponse, body);
+				}else{
+					var times = [];
+					xml.starttime.forEach(function(val){
+						times.push(val*1); // coerce to number
+					});
+					callback(error, times, httpResponse, body);
+				}
 			});
-			callback(error, times, httpResponse, body);
 		}
 	});
 };
