@@ -3,8 +3,7 @@ var clientLogin = require('googleclientlogin'),
 	xml2js = require('xml2js'),
 	request = require('request'),
 	https = require('https'),
-	querystring = require('querystring'),
-	fs = require('fs');
+	querystring = require('querystring');
 	
 jsdom.defaultDocumentFeatures = {
   ProcessExternalResources : false
