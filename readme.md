@@ -1,5 +1,5 @@
 # node-google-voice
-https://github.com/amper5and/node-google-voice
+
 
 ## What is it?
 It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
