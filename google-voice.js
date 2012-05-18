@@ -660,11 +660,7 @@ exports.Client.prototype.set = function(type, options, callback){
 exports.Client.prototype.getCounts = function(callback){
 	callback = callback || noop;
 	getXMLPage(this, {path:'/inbox/recent/'}, function(error, json, httpResponse, body, xmlObject, err){
-		if(error){
-			callback(error, null, httpResponse, body, xmlObject, err);
-		}else{
 			callback(error, json.unreadCounts || null, httpResponse, body, xmlObject, err);
-		}
 	});
 };
 
