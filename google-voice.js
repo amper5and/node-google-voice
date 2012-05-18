@@ -2,7 +2,6 @@ var clientLogin = require('googleclientlogin'),
 	jsdom = require('jsdom'),
 	xml2js = require('xml2js'),
 	request = require('request'),
-	https = require('https'),
 	querystring = require('querystring');
 	
 jsdom.defaultDocumentFeatures = {
@@ -83,7 +82,7 @@ function get_(gv){
 	gv._.authAttempts = gv._.authAttempts || default_.authAttempts;
 };
 
-function gvrequest(gv,options,callback){
+function gvrequest(gv, options, callback){
 	options = options || {};
 	var query = options.query || {};
 	var method = options.method || 'GET';
@@ -268,14 +267,13 @@ methods.cancel = {
 
 
 exports.Client.prototype.connect=function(method,options,callback){
-	var gv = this;	
 	callback = callback || ( options && is(options,'function') ? options : noop);
 	
 	var status = validateRequest(methods, method, options);
 	if(status){ callback(status,null,null); return; }
 	
 	var requestOptions = methods[method].handler.call(methods[method],options);
-	gvrequest(gv,requestOptions,callback);
+	gvrequest(this,requestOptions,callback);
 };
 
 // GET METHODS
@@ -330,7 +328,6 @@ var getMethods = {
 
 var defaultStart = 1;
 exports.Client.prototype.get = function(type, options, callback){
-	var gv = this;
 	callback = callback || noop;
 	options = options || {};
 	
@@ -346,7 +343,7 @@ exports.Client.prototype.get = function(type, options, callback){
 	
 	options.start = options.start && options.start>0 ? options.start : defaultStart;
 	options.limit = options.limit && options.limit>-1 ? options.limit : null;
-	getMessages(gv, options, callback);
+	getMessages(this, options, callback);
 };
 
 function getMessages(gv,options,callback){
@@ -627,7 +624,6 @@ var setMethods = {
 };
 
 exports.Client.prototype.set = function(type, options, callback){
-	var gv = this;
 	callback = callback || noop;
 	if(!options.id){
 		callback(getError(STATUSES.MISSING_REQUIRED_PARAMETER));
@@ -656,15 +652,14 @@ exports.Client.prototype.set = function(type, options, callback){
 	requestOptions.path = requestOptions.path || setMethods[type].path;
 	requestOptions.method = requestOptions.method || 'POST';
 
-	gvrequest(gv, requestOptions, callback);
+	gvrequest(this, requestOptions, callback);
 };
 
 
 // UPDATE COUNTS
 exports.Client.prototype.getCounts = function(callback){
-	var gv = this;
 	callback = callback || noop;
-	getXMLPage(gv,{path:'/inbox/recent/'},function(error, json, httpResponse, body, xmlObject, err){
+	getXMLPage(this, {path:'/inbox/recent/'}, function(error, json, httpResponse, body, xmlObject, err){
 		if(error){
 			callback(error, null, httpResponse, body, xmlObject, err);
 		}else{
@@ -675,9 +670,8 @@ exports.Client.prototype.getCounts = function(callback){
 
 // SETTINGS
 exports.Client.prototype.getSettings = function(callback){
-	var gv = this;
 	callback = callback || noop;
-	getXMLPage(gv,{path:'/settings/tab/settings'},callback);
+	getXMLPage(this,{path:'/settings/tab/settings'},callback);
 };
 
 // GET TIMING OF MESSAGE WORDS
