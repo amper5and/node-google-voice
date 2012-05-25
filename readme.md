@@ -145,7 +145,7 @@ The above approach sends a 'star' request to Google Voice for *each* message. Th
 		}else{
 			var idArray = [];
 			response.messages.forEach(function(msg){
-				var idArray.push(msg.id);
+				idArray.push(msg.id);
 			});
 			
 			client.set('star',{id:idArray});

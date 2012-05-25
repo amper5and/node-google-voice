@@ -39,8 +39,8 @@ client.get('search',{query: 'mom', limit:Infinity}, function(error, response){
 	response.messages.forEach(function(msg){
 			
 		// this Array aggregates our message ids
-		var idArray.push(msg.id);
+		idArray.push(msg.id);
 	});
 	
-	client.set('star',{id:idArray}); // this sends a request to star all the messages at once
+	client.set('star', {id:idArray}); // this sends a request to star all the messages at once
 });
