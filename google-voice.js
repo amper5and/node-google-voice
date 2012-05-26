@@ -1,8 +1,9 @@
 var clientLogin = require('googleclientlogin'),
     jsdom = require('jsdom'),
-	xml2js = require('xml2js'),
+    xml2js = require('xml2js'),
 	request = require('request'),
-	querystring = require('querystring');
+	querystring = require('querystring'),
+    util = require('util');
 	
 jsdom.defaultDocumentFeatures = {
   ProcessExternalResources : false
@@ -60,13 +61,6 @@ function getError(code) {
 };
 
 function noop(){};
-
-function is(variable,type){
-	if(!variable){
-		return false;
-	}
-	return variable.constructor.name.toLowerCase() == type.toLowerCase() || typeof variable == type.toLowerCase();
-};
 
 var default_ = {
 	maxAuthAttempts: 2,
@@ -150,7 +144,7 @@ function gvrequest(gv, options, callback){
 };
 
 function validateRequest(methods, method, options){
-	if(!is(method,'string') || !methods[method]){ return getError(STATUSES.INVALID_METHOD); }
+	if(!method || !methods[method]){ return getError(STATUSES.INVALID_METHOD); }
 	
 	var method = methods[method];
 	for(var opt in method.options){
@@ -211,7 +205,7 @@ methods.sms = {
 		text: { demand: false}
 	},
 	handler: function(options){
-		if(is(options.outgoingNumber,'array')){  options.outgoingNumber = options.outgoingNumber.join(',');}
+		if(util.isArray(options.outgoingNumber)){  options.outgoingNumber = options.outgoingNumber.join(',');}
 		
 		return {
 			method: 'POST',
@@ -232,7 +226,7 @@ methods.call = {
 		phoneType: { demand: true }
 	},
 	handler: function(options){
-		if(is(options.outgoingNumber,'array')){  options.outgoingNumber = options.outgoingNumber[0];}
+		if(util.isArray(options.outgoingNumber)){  options.outgoingNumber = options.outgoingNumber[0];}
 		return {
 			method: 'POST',
 			path: '/call/connect/',
@@ -264,7 +258,7 @@ methods.cancel = {
 
 
 exports.Client.prototype.connect=function(method,options,callback){
-	callback = callback || ( options && is(options,'function') ? options : noop);
+	callback = callback || ( options && typeof options == 'function' ? options : noop);
 	
 	var status = validateRequest(methods, method, options);
 	if(status){ callback(status,null,null); return; }
@@ -552,7 +546,7 @@ var setMethods = {
 		path: '/inbox/savenote/',
 		options: { note: {demand: true}},
 		handler: function(options, requestOptions){
-			if(is(options.id,'array')){
+			if(util.isArray(options.id)){
 				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query = {
@@ -565,7 +559,7 @@ var setMethods = {
 	deleteNote: {
 		path: '/inbox/deletenote/',
 		handler: function(options, requestOptions){
-			if(is(options.id,'array')){
+			if(util.isArray(options.id)){
 				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query = {id: options.id };
@@ -576,7 +570,7 @@ var setMethods = {
 		path: '/inbox/saveTranscript/',
 		options: { transcript: { demand: true}},
 		handler: function(options, requestOptions){
-			if(is(options.id,'array')){
+			if(util.isArray(options.id)){
 				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  {
@@ -589,7 +583,7 @@ var setMethods = {
 	restoreTranscript: {
 		path: '/inbox/restoreTranscript/',
 		handler: function(options, requestOptions){
-			if(is(options.id,'array')){
+			if(util.isArray(options.id)){
 				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  { callId: options.id };
@@ -605,12 +599,12 @@ var setMethods = {
 			link: { demand: false}
 		},
 		handler: function(options, requestOptions){
-			if(is(options.id,'array')){
+			if(util.isArray(options.id)){
 				return getError(STATUSES.CANNOT_SET_MULTIPLE_MSGS);
 			}
 			requestOptions.query =  {
 				id: options.id,
-				toAddress: is(options.email,'array') ? options.email.join(',') : options.email,
+				toAddress: util.isArray(options.email) ? options.email.join(',') : options.email,
 				subject: options.subject || '',
 				body: options.body || '',
 				includeLink: options.link ? '1' : '0'
