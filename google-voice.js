@@ -1,5 +1,5 @@
 var clientLogin = require('googleclientlogin'),
-	jsdom = require('jsdom'),
+    jsdom = require('jsdom'),
 	xml2js = require('xml2js'),
 	request = require('request'),
 	querystring = require('querystring');
@@ -24,7 +24,6 @@ var STATUSES = {
 	NO_ERROR: 0,
 	AUTHENTICATION_ERROR: 1,
 	GET_RNRSE_ERROR: 2,
-	INIT_ERROR: 3,
 	MISSING_REQUIRED_PARAMETER: 4,
 	INVALID_METHOD: 5,
 	GOOGLE_CLIENTLOGIN_ERROR: 10,
@@ -34,8 +33,6 @@ var STATUSES = {
 	OUT_OF_BOUND_LIMIT: 31,
 	PARSE_ERROR: 39,
 	CANNOT_SET_MULTIPLE_MSGS: 41,
-	INVALID_MESSAGE_ID: 50,
-	FILE_ERROR: 51,
 	HTTP_ERROR: 200
 };
 
