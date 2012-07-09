@@ -369,7 +369,7 @@ function getMessages(gv,options,callback){
 			if(pagesGot===pagesToGet){
 				messages.sort(sortMessages);
 				messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
-				callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json.totalSize, unreadCounts: json.unreadCounts});
+				callback(getError(STATUSES.NO_ERROR), {messages: messages, total: json.totalSize, unreadCounts: json.unreadCounts, resultsPerPage: json.resultsPerPage});
 			}
 		}
 		
