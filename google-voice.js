@@ -452,7 +452,7 @@ function processMessages(messages, html){
 				});
 			});
 		}
-		if(isMessage(msg,'voicemail') || isMessage(msg,'recorded')){
+		if(msg.hasMp3) {
 			msg.url = voicemailMp3BaseUrl + msgId;
 		}
 		
