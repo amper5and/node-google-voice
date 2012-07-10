@@ -432,9 +432,17 @@ function processMessages(messages, html){
 	
 	for(var msgId in messages){
 		var msg = messages[msgId];
-		if(isMessage(msg,'sms')){
+		var msgHtml = document.getElementById(msgId);
+		msg.location = msgHtml.getElementsByClassName('gc-message-location');
+		if(msg.location[0]) {
+			var loc = msg.location[0].getElementsByClassName('gc-under')[0];
+			msg.location = (loc && loc.innerHTML) || "";
+		} else {
+			msg.location = "";
+		}
+		var thread = msgHtml.getElementsByClassName('gc-message-sms-row');
+		if(thread) {
 			msg.thread = [];
-			var thread = document.getElementById(msgId).getElementsByClassName('gc-message-sms-row');
 			thread.forEach = Array.prototype.forEach;
 			thread.forEach(function(text){
 				msg.thread.push({
