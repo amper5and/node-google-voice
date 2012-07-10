@@ -441,7 +441,7 @@ function processMessages(messages, html){
 			msg.location = "";
 		}
 		var thread = msgHtml.getElementsByClassName('gc-message-sms-row');
-		if(thread) {
+		if(thread.length > 0) {
 			msg.thread = [];
 			thread.forEach = Array.prototype.forEach;
 			thread.forEach(function(text){
