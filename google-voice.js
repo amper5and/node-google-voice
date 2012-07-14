@@ -427,12 +427,11 @@ function sortMessages(msg1, msg2){
 };
 
 function processMessages(messages, html){
-	var msgArray = [];
-	var document = jsdom.jsdom(html);
-	
+	var msgArray = [];	
 	for(var msgId in messages){
 		var msg = messages[msgId];
-		if(isMessage(msg,'sms')){
+		if(msg.type==10 || msg.type==11){ // an sms
+			var document = jsdom.jsdom(html);
 			msg.thread = [];
 			var thread = document.getElementById(msgId).getElementsByClassName('gc-message-sms-row');
 			thread.forEach = Array.prototype.forEach;
@@ -444,10 +443,6 @@ function processMessages(messages, html){
 				});
 			});
 		}
-		if(isMessage(msg,'voicemail') || isMessage(msg,'recorded')){
-			msg.url = voicemailMp3BaseUrl + msgId;
-		}
-		
 		msgArray.push(msg);
 	}
 	return msgArray;
