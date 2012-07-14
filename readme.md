@@ -310,7 +310,7 @@ This is the common method for fetching Google Voice messages, whether they are t
 	* `error` (GoogleVoiceError)
 	* `response` (Object): has the following properties:
 		* `total` (Number): the total number of messages matching this request
-		* `unreadCounts` (Object): contains the numbers of unread messages in each standard Google Voice label.
+		* `unreadCounts` (Object): contains the numbers of unread messages in each standard Google Voice label. _Note: There is currently an issue such that when a`.get('search',{...},function(error,response){...})` is issued, `response.unreadCounts` is empty._
 		* `messages` (Array): an array of Google Voice message objects, sorted by `startTime`. The properties of each message object are whatever Google Voice is supplying at the time of the request. A few properties are added by node-google-voice (indicated below). At the time of this writing, an example message looked like this:	
 			
 			```javascript	
@@ -352,6 +352,7 @@ Every time `.get()` is used, the `unreadCounts` property of the response gives i
 	* `error` (GoogleVoiceError)
 	* `counts` (Object): the `unreadCounts` object given by Google Voice. At the time of this writing, it had the following properties: all, inbox, missed, placed, received, recorded, sms, spam, starred, trash, unread, voicemail
 
+_Note: There is currently an issue such that when a`.get('search',{...},function(error,response){...})` is issued, `response.unreadCounts` is empty._
 
 ### client.download(id, callback)
 Downloads the audio data of voicemails and recorded calls.The arguments are:
