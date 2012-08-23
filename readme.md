@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/amper5and/node-google-voice.png)](http://travis-ci.org/amper5and/node-google-voice)
 # node-google-voice
 
 
