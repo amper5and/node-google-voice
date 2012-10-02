@@ -10,6 +10,9 @@ It currently allows you to:
 * access and manipulate GV messages
 * access GV settings
 
+## Who's using it?
+Node-google-voice is being used in the commercial SynerGV Google Voice project. Check it out at http://www.ericbla.de/synergv .
+
 ## What's new in 0.1 ?
 
 * new common, consistent methods for calling/texting and getting/setting messages
