@@ -365,7 +365,7 @@ function getMessages(gv,options,callback){
 		function retreivedPage(status, json, httpResponse, body, xml2jsResult, err){
 			pagesGot++;
 			if(status){ callback(status, null, json, httpResponse, body, xml2jsResult, err); return; }
-			messages = messages.concat(processMessages(json.messages, xml2jsResult.html));
+			messages = messages.concat(processMessages(json.messages, xml2jsResult.response.html));
 			if(pagesGot===pagesToGet){
 				messages.sort(sortMessages);
 				messages = options.limit === Infinity ? messages.splice(startIndex) : messages.splice(startIndex,options.limit);
@@ -415,7 +415,7 @@ function getXMLPage(gv,options,callback){
 
 function getJSONfromXML(XMLobject){
 	try{
-		var json = JSON.parse(XMLobject.json);
+		var json = JSON.parse(XMLobject.result.json);
 		return json;
 	}catch(err){  
 		return null; 
