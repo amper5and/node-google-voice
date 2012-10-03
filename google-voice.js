@@ -415,7 +415,7 @@ function getXMLPage(gv,options,callback){
 
 function getJSONfromXML(XMLobject){
 	try{
-		var json = JSON.parse(XMLobject.result.json);
+		var json = JSON.parse(XMLobject.response.json);
 		return json;
 	}catch(err){  
 		return null; 
