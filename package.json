@@ -2,7 +2,7 @@
   "author": "AXS <alexstets@gmail.com>",
   "name": "google-voice",
   "description": "A Google Voice API for Node.js",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "homepage": "https://github.com/amper5and/node-google-voice",
   "repository": {
     "type": "git",
