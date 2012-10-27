@@ -37,11 +37,12 @@ Node-google-voice is being used in the commercial SynerGV Google Voice project. 
 [npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing these modules (and *their* dependencies) independently.
 
 ## Installation
-Install node-google-voice via npm:
+NOTICE: The `google-voice` module will be removed/deprecated in `npm` in order not to clash with the new `voice.js` module. 
 
-	npm install google-voice
+Install node-google-voice by downloading [the zip](https://github.com/amper5and/node-google-voice/zipball/master), then run the following from inside the folder:
+
+	npm install
 	
-(In more recent versions of Node, npm is included. See [the npm page](https://github.com/isaacs/npm) for information on installing npm with older versions of Node.)
 
 ## Examples
 ### Create a client instance
