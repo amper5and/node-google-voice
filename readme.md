@@ -1,7 +1,7 @@
 # node-google-voice
 
 ## Update
-node-google-voice has been superceded by [voice.js](https://github.com/amper5and/voice.js). There will be very little, if any, further development of node-google-voice. Go and see what new things voice.js can do for you.
+node-google-voice has been superceded by [voice.js](https://github.com/amper5and/voice.js), [on npm](https://npmjs.org/package/voice.js). There will be very little, if any, further development of node-google-voice. Go and see what new things voice.js can do for you.
 
 ## What is it?
 It's the Google Voice API for [node.js](http://nodejs.org/). Except there is no official "Google Voice API", so node-google-voice is also the only (javascript) Google Voice API. 
