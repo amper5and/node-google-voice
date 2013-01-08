@@ -24,7 +24,6 @@ Node-google-voice is being used in the commercial SynerGV Google Voice project. 
 * faster message requests, due to internal parallel downloading of data
 * no need to obtain the RNR_SE id manually
 
-(Note that the call scheduler has been removed in 0.1.)
 
 ## Dependencies
 
@@ -37,9 +36,9 @@ Node-google-voice is being used in the commercial SynerGV Google Voice project. 
 [npm](https://github.com/isaacs/npm) should take care of dependencies, but in case it fails to do so, try installing these modules (and *their* dependencies) independently.
 
 ## Installation
-NOTICE: The `google-voice` module will be removed/deprecated in `npm` in order not to clash with the new `voice.js` module. 
+NOTICE: The `google-voice` has been removed from the `npm` registry in order not to clash with the new `voice.js` module. 
 
-Install node-google-voice by downloading [the zip](https://github.com/amper5and/node-google-voice/zipball/master), then run the following from inside the folder:
+If you wish to install node-google-voice, download [the zip](https://github.com/amper5and/node-google-voice/zipball/master), then run the following from inside the folder:
 
 	npm install
 	
